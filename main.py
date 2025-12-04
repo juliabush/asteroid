@@ -3,7 +3,7 @@ from logger import log_state, log_event
 from player import Player
 from asteroidfield import AsteroidField
 from asteroid import Asteroid
-from shots import Shot
+from shot import Shot
 import pygame
 import sys
 
