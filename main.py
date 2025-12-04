@@ -27,6 +27,8 @@ def main():
 
     player_object = Player(x, y)
 
+    asteroid_object = Asteroid(updatable)
+
     while True:
         log_state()
 
