@@ -1,7 +1,7 @@
 import pygame
 from circleshape import CircleShape
 from shot import Shot
-from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, PLAYER_SHOOT_COOLDOWN_SECONDS
 
 class Player(CircleShape):
     containers = ()
@@ -53,3 +53,9 @@ class Player(CircleShape):
         velocity = direction * PLAYER_SHOOT_SPEED
 
         new_shot.velocity = velocity
+
+        if self.shot_cooldown > 0:
+            !shoot()
+        else:
+            self.shot_cooldown = PLAYER_SHOOT_COOLDOWN_SECONDS
+        
