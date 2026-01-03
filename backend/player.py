@@ -1,6 +1,6 @@
 import pygame
 from backend.circleshape import CircleShape
-from shot import Shot
+from backend.shot import Shot
 from backend.constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, PLAYER_SHOOT_COOLDOWN_SECONDS
 
 class Player(CircleShape):
