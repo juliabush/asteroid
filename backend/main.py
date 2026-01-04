@@ -1,10 +1,9 @@
 import os
 import pygame
-import sys
 import asyncio
 import json
 
-from backend.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from backend.constants import SCREEN_WIDTH, SCREEN_HEIGHT, PLAYER_SPEED, PLAYER_TURN_SPEED
 from backend.logger import log_state, log_event
 from backend.player import Player
 from backend.asteroidfield import AsteroidField
@@ -30,7 +29,28 @@ AsteroidField.containers = (updatable,)
 player_object = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 asteroidfield_object = AsteroidField()
 
+
+def reset_game():
+    """Reset all game objects to their initial state."""
+    updatable.empty()
+    drawable.empty()
+    asteroids.empty()
+    shots.empty()
+
+    Player.containers = (updatable, drawable)
+    Asteroid.containers = (asteroids, updatable, drawable)
+    Shot.containers = (shots, updatable, drawable)
+    AsteroidField.containers = (updatable,)
+
+    global player_object, asteroidfield_object
+    player_object = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    asteroidfield_object = AsteroidField()
+
+    print("Game reset — ready to play again!")
+
+
 def run_game_step(dt):
+    """Updates all objects and checks for collisions."""
     updatable.update(dt)
 
     for asteroid in asteroids:
@@ -43,18 +63,44 @@ def run_game_step(dt):
         if asteroid.collides_with(player_object):
             log_event("player_hit")
             print("Game Over!")
-            return False  
+            return "game_over"
 
-    return True  
+    return "ok"
 
 
-async def game_loop(connected_clients):
-    dt = 0
+async def game_loop(connected_clients, player_inputs):
+    """Main async game loop that sends state updates to all clients."""
+    dt = 1 / 60
+
     while True:
         clock.tick(60)
-        cont = run_game_step(dt)
-        if not cont:
-            break
+
+        if player_inputs["left"]:
+            player_object.rotation -= PLAYER_TURN_SPEED * dt
+        if player_inputs["right"]:
+            player_object.rotation += PLAYER_TURN_SPEED * dt
+        if player_inputs["up"]:
+            forward = pygame.Vector2(0, 1).rotate(player_object.rotation)
+            player_object.position += forward * PLAYER_SPEED * dt
+        if player_inputs["down"]:
+            backward = pygame.Vector2(0, -1).rotate(player_object.rotation)
+            player_object.position += backward * PLAYER_SPEED * dt
+        if player_inputs["space"]:
+            player_object.shoot()
+
+        status = run_game_step(dt)
+
+        if status == "game_over":
+            if connected_clients:
+                msg = json.dumps({"type": "game_over"})
+                await asyncio.gather(*(c.send(msg) for c in connected_clients))
+
+            print("Waiting for restart...")
+            while not player_inputs.get("restart", False):
+                await asyncio.sleep(0.1)
+            player_inputs["restart"] = False
+            reset_game()
+            continue
 
         state = {
             "player": [player_object.position.x, player_object.position.y],
@@ -70,4 +116,4 @@ async def game_loop(connected_clients):
             msg = json.dumps({"type": "state", "data": state})
             await asyncio.gather(*(c.send(msg) for c in connected_clients))
 
-        await asyncio.sleep(1 / 60)  
+        await asyncio.sleep(dt)

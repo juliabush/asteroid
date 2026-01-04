@@ -21,6 +21,13 @@ socket.onerror = (err) => {
 
 let gameState = null;
 
+window.addEventListener("keydown", (e) => {
+  socket.send(JSON.stringify({ type: "input", key: e.key }));
+});
+window.addEventListener("keyup", (e) => {
+  socket.send(JSON.stringify({ type: "input_release", key: e.key }));
+});
+
 socket.onmessage = (event) => {
   const msg = JSON.parse(event.data);
 
@@ -63,3 +70,22 @@ function draw() {
 }
 
 draw();
+
+const modal = document.getElementById("gameOverModal");
+const restartBtn = document.getElementById("restartBtn");
+
+socket.onmessage = (event) => {
+  const msg = JSON.parse(event.data);
+
+  if (msg.type === "state") {
+    gameState = msg.data;
+  } else if (msg.type === "game_over") {
+    modal.style.display = "flex";
+    gameState = null;
+  }
+};
+
+restartBtn.addEventListener("click", () => {
+  socket.send(JSON.stringify({ type: "restart" }));
+  modal.style.display = "none";
+});

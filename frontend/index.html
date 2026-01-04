@@ -10,6 +10,26 @@
     <h1>Asteroids (WebSocket Edition)</h1>
     <canvas id="gameCanvas" width="1280" height="720"></canvas>
     <p id="status">Connecting to server...</p>
+    <div
+      id="gameOverModal"
+      style="
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        text-align: center;
+        padding-top: 200px;
+      "
+    >
+      <h1>Game Over!</h1>
+      <button id="restartBtn" style="font-size: 20px; padding: 10px 20px">
+        Restart
+      </button>
+    </div>
 
     <script src="script.js"></script>
   </body>
