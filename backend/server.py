@@ -1,7 +1,7 @@
 import asyncio
 import json
 import websockets
-from backend.main import game_loop
+from backend.main import game_loop, reset_game
 
 connected_clients = set()
 
@@ -14,11 +14,25 @@ player_inputs = {
     "restart": False
 }
 
+KEY_MAP = {
+    "ArrowUp": "up", "w": "up",
+    "ArrowDown": "down", "s": "down",
+    "ArrowLeft": "left", "a": "left",
+    "ArrowRight": "right", "d": "right",
+    " ": "space",
+}
+
+game_task = None
+
 
 async def handler(websocket):
-    """Handles each connected WebSocket client."""
+    global game_task
+
     connected_clients.add(websocket)
-    print(f"Client connected ({len(connected_clients)} total)")
+
+    if not game_task or game_task.done():
+        if len(connected_clients) == 1:
+            game_task = asyncio.create_task(game_loop(connected_clients, player_inputs))
 
     try:
         await websocket.send(json.dumps({
@@ -28,53 +42,24 @@ async def handler(websocket):
 
         async for message in websocket:
             data = json.loads(message)
-            print(f"Received: {data}")
+            msg_type = data.get("type")
 
-            if data.get("type") == "input":
+            if msg_type in ("input", "input_release"):
                 key = data.get("key")
-                if key in ["ArrowUp", "w"]:
-                    player_inputs["up"] = True
-                elif key in ["ArrowDown", "s"]:
-                    player_inputs["down"] = True
-                elif key in ["ArrowLeft", "a"]:
-                    player_inputs["left"] = True
-                elif key in ["ArrowRight", "d"]:
-                    player_inputs["right"] = True
-                elif key == " ":
-                    player_inputs["space"] = True
+                if key in KEY_MAP:
+                    player_inputs[KEY_MAP[key]] = (msg_type == "input")
 
-            elif data.get("type") == "input_release":
-                key = data.get("key")
-                if key in ["ArrowUp", "w"]:
-                    player_inputs["up"] = False
-                elif key in ["ArrowDown", "s"]:
-                    player_inputs["down"] = False
-                elif key in ["ArrowLeft", "a"]:
-                    player_inputs["left"] = False
-                elif key in ["ArrowRight", "d"]:
-                    player_inputs["right"] = False
-                elif key == " ":
-                    player_inputs["space"] = False
-
-            elif data.get("type") == "restart":
-                player_inputs["restart"] = True
-
-            print("Current player_inputs:", player_inputs)
+            elif msg_type == "restart":
+                reset_game()
 
     except websockets.ConnectionClosed:
-        print("Client disconnected")
+        pass
     finally:
-        connected_clients.remove(websocket)
-        print(f"Client removed ({len(connected_clients)} remaining)")
+        connected_clients.discard(websocket)
 
 
 async def main():
-    """Starts the WebSocket server and runs the game loop."""
     async with websockets.serve(handler, "0.0.0.0", 8000):
-        print("WebSocket server running on ws://0.0.0.0:8000")
-
-        asyncio.create_task(game_loop(connected_clients, player_inputs))
-
         await asyncio.Future()
 
 

@@ -1,91 +1,114 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
 const statusEl = document.getElementById("status");
-
-const socket = new WebSocket("ws://localhost:8000");
-
-socket.onopen = () => {
-  console.log("Connected to server");
-  statusEl.textContent = "Connected";
-};
-
-socket.onclose = () => {
-  console.log("Disconnected");
-  statusEl.textContent = "Disconnected";
-};
-
-socket.onerror = (err) => {
-  console.error("WebSocket error:", err);
-  statusEl.textContent = "Connection error";
-};
-
-let gameState = null;
-
-window.addEventListener("keydown", (e) => {
-  socket.send(JSON.stringify({ type: "input", key: e.key }));
-});
-window.addEventListener("keyup", (e) => {
-  socket.send(JSON.stringify({ type: "input_release", key: e.key }));
-});
-
-socket.onmessage = (event) => {
-  const msg = JSON.parse(event.data);
-
-  if (msg.type === "state") {
-    gameState = msg.data;
-  }
-};
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "white";
-
-  if (!gameState) {
-    ctx.fillText("Waiting for game state...", 20, 40);
-    requestAnimationFrame(draw);
-    return;
-  }
-
-  const [px, py] = gameState.player;
-  ctx.beginPath();
-  ctx.arc(px, py, 10, 0, Math.PI * 2);
-  ctx.fillStyle = "white";
-  ctx.fill();
-
-  ctx.strokeStyle = "gray";
-  for (const [ax, ay, ar] of gameState.asteroids) {
-    ctx.beginPath();
-    ctx.arc(ax, ay, ar, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-
-  ctx.fillStyle = "red";
-  for (const [sx, sy] of gameState.shots) {
-    ctx.beginPath();
-    ctx.arc(sx, sy, 3, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  requestAnimationFrame(draw);
-}
-
-draw();
-
 const modal = document.getElementById("gameOverModal");
 const restartBtn = document.getElementById("restartBtn");
 
-socket.onmessage = (event) => {
+let gameState = null;
+
+canvas.focus();
+
+const WS = {
+  socket: null,
+  connected: false,
+  reconnectTimer: null,
+};
+
+function connect() {
+  if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
+
+  WS.socket = new WebSocket("ws://localhost:8000");
+
+  WS.socket.onopen = () => {
+    WS.connected = true;
+    statusEl.textContent = "Connected";
+    clearTimeout(WS.reconnectTimer);
+  };
+
+  WS.socket.onclose = () => {
+    WS.connected = false;
+    statusEl.textContent = "Disconnected";
+    WS.reconnectTimer = setTimeout(connect, 2000);
+  };
+
+  WS.socket.onmessage = (e) => {
+    handleMessage({ data: e.data });
+  };
+}
+
+function handleMessage(event) {
   const msg = JSON.parse(event.data);
 
   if (msg.type === "state") {
     gameState = msg.data;
-  } else if (msg.type === "game_over") {
-    modal.style.display = "flex";
-    gameState = null;
+
+    if (msg.phase === "game_over") {
+      modal.style.display = "block";
+    } else {
+      modal.style.display = "none";
+    }
   }
-};
+}
+
+function send(type, payload = {}) {
+  if (!WS.socket || WS.socket.readyState !== WebSocket.OPEN) return;
+  WS.socket.send(JSON.stringify({ type, ...payload }));
+}
+
+window.addEventListener("keydown", (e) => {
+  e.preventDefault();
+
+  if (modal.style.display === "block") {
+    if (e.key === "Enter") {
+      modal.style.display = "none";
+      send("restart");
+    }
+    return;
+  }
+
+  send("input", { key: e.key });
+});
+
+window.addEventListener("keyup", (e) => {
+  e.preventDefault();
+
+  if (modal.style.display === "block") return;
+
+  send("input_release", { key: e.key });
+});
 
 restartBtn.addEventListener("click", () => {
-  socket.send(JSON.stringify({ type: "restart" }));
   modal.style.display = "none";
+  send("restart");
 });
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (gameState) {
+    const [px, py] = gameState.player;
+
+    ctx.strokeStyle = "white";
+    ctx.beginPath();
+    ctx.arc(px, py, 10, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "gray";
+    for (const [x, y, r] of gameState.asteroids) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "white";
+    for (const [x, y] of gameState.shots) {
+      ctx.fillRect(x - 2, y - 2, 4, 4);
+    }
+  }
+
+  requestAnimationFrame(render);
+}
+
+connect();
+render();
