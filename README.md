@@ -18,6 +18,7 @@ Keys for navigation:
 
 Backend: Python (Pygame for game simulation) with WebSockets
 Frontend: Vanilla JavaScript, HTML5 Canvas, and CSS
+
 Infrastructure:
 
 ** Backend **
