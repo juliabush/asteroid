@@ -84,6 +84,8 @@ async def game_loop(connected_clients, players, player_inputs):
                 if not inputs:
                     continue
 
+                player.shot_cooldown = max(0, player.shot_cooldown - dt)
+
                 if inputs["left"]:
                     player.rotation -= PLAYER_TURN_SPEED * dt
                 if inputs["right"]:
