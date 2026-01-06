@@ -21,8 +21,7 @@ const WS = {
 function connect() {
   if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
 
-  // WS.socket = new WebSocket("wss://juliabush.pl");
-  WS.socket = new WebSocket("ws://localhost:8000");
+  WS.socket = new WebSocket("wss://juliabush.pl");
 
   WS.socket.onopen = () => {
     WS.connected = true;

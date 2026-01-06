@@ -83,3 +83,4 @@ Finally, `requestAnimationFrame(render)` schedules the function to run again bef
 
 <!-- source .venv/bin/activate -->
 <!-- python backend/server.py -->
+<!-- WS.socket = new WebSocket("ws://localhost:8000"); -->

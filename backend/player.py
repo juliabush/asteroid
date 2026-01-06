@@ -31,7 +31,6 @@ class Player(CircleShape):
         pygame.draw.polygon(screen, "white", self.triangle(), LINE_WIDTH)
 
     def shoot(self):
-        print("SHOOT CALLED", self.shot_cooldown)
         if self.shot_cooldown > 0:
             return
 

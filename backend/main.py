@@ -69,10 +69,7 @@ def reset_game(players, player_inputs):
 
 
 def run_game_step(dt, players):
-    print("SHOTS BEFORE UPDATE:", len(shots))
     updatable.update(dt)
-    print("SHOTS AFTER UPDATE:", len(shots))
-
 
     for asteroid in list(asteroids):
         for player in players.values():
