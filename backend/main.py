@@ -3,15 +3,18 @@ import pygame
 import asyncio
 import json
 
-from backend.constants import SCREEN_WIDTH, SCREEN_HEIGHT, PLAYER_SPEED, PLAYER_TURN_SPEED
-from backend.logger import log_event
+from backend.constants import (
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    PLAYER_SPEED,
+    PLAYER_TURN_SPEED,
+)
 from backend.player import Player
 from backend.asteroidfield import AsteroidField
 from backend.asteroid import Asteroid
 from backend.shot import Shot
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
-
 pygame.init()
 screen = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -37,11 +40,9 @@ def wrap_position(pos):
     pos.x %= SCREEN_WIDTH
     pos.y %= SCREEN_HEIGHT
 
-player_object = None
-asteroidfield_object = None
 
-def reset_game(player_inputs=None):
-    global player_object, asteroidfield_object, game_phase
+def reset_game():
+    global game_phase
 
     updatable.empty()
     drawable.empty()
@@ -50,22 +51,17 @@ def reset_game(player_inputs=None):
 
     bind_containers()
 
-    if player_inputs is not None:
-        for k in player_inputs:
-            player_inputs[k] = False
-
-    player_object = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    asteroidfield_object = AsteroidField()
-
+    AsteroidField()
     game_phase = PHASE_RUNNING
 
 
-def run_game_step(dt):
+def run_game_step(dt, players):
     updatable.update(dt)
 
     for asteroid in list(asteroids):
-        if asteroid.collides_with(player_object):
-            return "player_hit"
+        for player in players.values():
+            if asteroid.collides_with(player):
+                return "player_hit"
 
     for asteroid in list(asteroids):
         for shot in list(shots):
@@ -73,55 +69,56 @@ def run_game_step(dt):
                 shot.kill()
                 asteroid.split()
 
+    return "Everything works as intended"
 
-    return "Everything worked as intended"
 
-async def game_loop(connected_clients, player_inputs):
+async def game_loop(connected_clients, players, player_inputs):
     global game_phase
-
-    # reset_game(player_inputs)
 
     dt = 1 / 60
 
     while True:
         if game_phase == PHASE_RUNNING:
-            if player_inputs["left"]:
-                player_object.rotation -= PLAYER_TURN_SPEED * dt
-            if player_inputs["right"]:
-                player_object.rotation += PLAYER_TURN_SPEED * dt
-            if player_inputs["up"]:
-                forward = pygame.Vector2(0, -1).rotate(player_object.rotation)
-                player_object.position += forward * PLAYER_SPEED * dt
-                wrap_position(player_object.position)
-            if player_inputs["down"]:
-                backward = pygame.Vector2(0, 1).rotate(player_object.rotation)
-                player_object.position += backward * PLAYER_SPEED * dt
-                wrap_position(player_object.position)
-            if player_inputs["space"]:
-                player_object.shoot()
+            for ws, player in players.items():
+                inputs = player_inputs.get(ws)
+                if not inputs:
+                    continue
 
-            status = run_game_step(dt)
+                if inputs["left"]:
+                    player.rotation -= PLAYER_TURN_SPEED * dt
+                if inputs["right"]:
+                    player.rotation += PLAYER_TURN_SPEED * dt
+                if inputs["up"]:
+                    forward = pygame.Vector2(0, -1).rotate(player.rotation)
+                    player.position += forward * PLAYER_SPEED * dt
+                if inputs["down"]:
+                    backward = pygame.Vector2(0, 1).rotate(player.rotation)
+                    player.position += backward * PLAYER_SPEED * dt
+                if inputs["space"]:
+                    player.shoot()
+
+                wrap_position(player.position)
+
+            status = run_game_step(dt, players)
 
             if status == "player_hit":
                 game_phase = PHASE_GAME_OVER
-                # if connected_clients:
-                #     msg = json.dumps({"type": "game_over"})
-                #     await asyncio.gather(
-                #        *(c.send(msg) for c in connected_clients),
-                #           return_exceptions=True
-                #     )
 
         if connected_clients:
             state = {
-                "player": [
-                    player_object.position.x,
-                    player_object.position.y,
-                    player_object.rotation
+                "players": [
+                    [p.position.x, p.position.y, p.rotation]
+                    for p in players.values()
                 ],
-                "asteroids": [[a.position.x, a.position.y, a.radius] for a in asteroids],
-                "shots": [[s.position.x, s.position.y] for s in shots],
+                "asteroids": [
+                    [a.position.x, a.position.y, a.radius]
+                    for a in asteroids
+                ],
+                "shots": [
+                    [s.position.x, s.position.y]
+                    for s in shots
+                ],
             }
-
 
             msg = json.dumps({
                 "type": "state",
