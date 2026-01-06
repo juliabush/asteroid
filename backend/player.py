@@ -1,7 +1,7 @@
 import pygame
-from backend.circleshape import CircleShape
-from backend.shot import Shot
-from backend.constants import (
+from circleshape import CircleShape
+from shot import Shot
+from constants import (
     PLAYER_RADIUS,
     LINE_WIDTH,
     PLAYER_SHOOT_SPEED,

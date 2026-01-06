@@ -1,8 +1,8 @@
 import pygame
 import random
-from backend.circleshape import CircleShape
-from backend.logger import log_event
-from backend.constants import LINE_WIDTH, WHITE, ASTEROID_MIN_RADIUS
+from circleshape import CircleShape
+from logger import log_event
+from constants import LINE_WIDTH, WHITE, ASTEROID_MIN_RADIUS
 
 class Asteroid(CircleShape):
     containers = ()

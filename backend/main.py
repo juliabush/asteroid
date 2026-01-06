@@ -9,10 +9,10 @@ from backend.constants import (
     PLAYER_SPEED,
     PLAYER_TURN_SPEED,
 )
-from backend.player import Player
-from backend.asteroidfield import AsteroidField
-from backend.asteroid import Asteroid
-from backend.shot import Shot
+from player import Player
+from asteroidfield import AsteroidField
+from asteroid import Asteroid
+from shot import Shot
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
