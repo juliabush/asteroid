@@ -45,7 +45,6 @@ function handleMessage(event) {
 
   if (msg.type === "state") {
     gameState = msg.data;
-
     modal.style.display = msg.phase === "game_over" ? "block" : "none";
   }
 }
@@ -81,21 +80,37 @@ restartBtn.addEventListener("click", () => {
 });
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 function applyCameraTransform() {
-  const scale = Math.max(
-    canvas.width / WORLD_WIDTH,
-    canvas.height / WORLD_HEIGHT
+  const dpr = window.devicePixelRatio || 1;
+
+  const viewW = canvas.width / dpr;
+  const viewH = canvas.height / dpr;
+
+  const margin = 12;
+
+  const scale = Math.min(
+    viewW / (WORLD_WIDTH - margin * 2),
+    viewH / (WORLD_HEIGHT - margin * 2),
   );
 
-  const offsetX = (canvas.width - WORLD_WIDTH * scale) / 2;
-  const offsetY = (canvas.height - WORLD_HEIGHT * scale) / 2;
+  const offsetX =
+    (viewW - (WORLD_WIDTH - margin * 2) * scale) / 2 + margin * scale;
+  const offsetY =
+    (viewH - (WORLD_HEIGHT - margin * 2) * scale) / 2 + margin * scale;
 
   ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
 }
