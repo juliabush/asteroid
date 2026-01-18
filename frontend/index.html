@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -22,6 +22,25 @@
       <button id="restartBtn" class="modal__action modal__action--primary">
         Restart
       </button>
+      <button id="instructionsBtn" class="modal__action">Instructions</button>
+    </div>
+
+    <div
+      class="modal modal--instructions"
+      id="instructionsModal"
+      style="display: none"
+    >
+      <h1 class="modal__title">How to Play</h1>
+
+      <p class="modal__text">
+        Arrow Keys — Rotate and thrust<br />
+        Space — Shoot<br />
+        Avoid asteroids<br />
+        Destroy asteroids to survive<br />
+        Screen edges wrap around
+      </p>
+
+      <button id="closeInstructionsBtn" class="modal__action">Close</button>
     </div>
 
     <script src="script.js" defer></script>

@@ -88,3 +88,13 @@ body {
   margin-top: 10px;
   color: var(--color-status);
 }
+
+.modal--instructions {
+  text-align: center;
+}
+
+.modal__text {
+  margin: 20px 0 30px;
+  line-height: 1.6;
+  letter-spacing: 1px;
+}

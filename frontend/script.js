@@ -5,6 +5,18 @@ const statusEl = document.getElementById("status");
 const modal = document.getElementById("gameOverModal");
 const restartBtn = document.getElementById("restartBtn");
 
+const instructionsBtn = document.getElementById("instructionsBtn");
+const instructionsModal = document.getElementById("instructionsModal");
+const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
+
+instructionsBtn.addEventListener("click", () => {
+  instructionsModal.style.display = "block";
+});
+
+closeInstructionsBtn.addEventListener("click", () => {
+  instructionsModal.style.display = "none";
+});
+
 let gameState = null;
 
 canvas.focus();
