@@ -88,8 +88,13 @@ def reset_game(players, player_inputs):
 def run_game_step(dt, players):
     updatable.update(dt)
 
+    w, h = SCREEN_WIDTH, SCREEN_HEIGHT
+    for ws in players:
+        w, h = client_worlds.get(ws, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        break
+
     for asteroid in asteroids:
-        wrap_position(asteroid.position, SCREEN_WIDTH, SCREEN_HEIGHT)
+        wrap_position(asteroid.position, w, h)
 
 
     for asteroid in list(asteroids):
@@ -148,7 +153,7 @@ async def game_loop(connected_clients, players, player_inputs):
                         player.fire_held = False
 
                 w, h = client_worlds.get(ws, (SCREEN_WIDTH, SCREEN_HEIGHT))
-                wrap_position(player.position, SCREEN_WIDTH, SCREEN_HEIGHT)
+                wrap_position(player.position, w, h)
 
             status = run_game_step(dt, players)
 
