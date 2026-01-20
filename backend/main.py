@@ -40,6 +40,12 @@ SHIP_RADIUS = 12
 
 client_worlds = {}
 
+def spawn_player(w, h):
+    p = Player()
+    p.position.x = w / 2
+    p.position.y = h / 2
+    return p
+
 def wrap_position(pos, w, h):
     if pos.x < -SHIP_RADIUS:
         pos.x = w + SHIP_RADIUS
@@ -81,6 +87,10 @@ def reset_game(players, player_inputs):
 
 def run_game_step(dt, players):
     updatable.update(dt)
+
+    for asteroid in asteroids:
+        wrap_position(asteroid.position, SCREEN_WIDTH, SCREEN_HEIGHT)
+
 
     for asteroid in list(asteroids):
         for player in players.values():
@@ -138,7 +148,7 @@ async def game_loop(connected_clients, players, player_inputs):
                         player.fire_held = False
 
                 w, h = client_worlds.get(ws, (SCREEN_WIDTH, SCREEN_HEIGHT))
-                wrap_position(player.position, w, h)
+                wrap_position(player.position, SCREEN_WIDTH, SCREEN_HEIGHT)
 
             status = run_game_step(dt, players)
 
@@ -147,6 +157,10 @@ async def game_loop(connected_clients, players, player_inputs):
 
         for ws in connected_clients:
             w, h = client_worlds.get(ws, (SCREEN_WIDTH, SCREEN_HEIGHT))
+            if ws not in players:
+                players[ws] = spawn_player(w, h)
+
+
 
             state = {
                 "players": [
