@@ -2,7 +2,7 @@ import asyncio
 import json
 import websockets
 
-from main import game_loop, reset_game, client_worlds
+from main import game_loop, client_worlds
 from player import Player
 
 connected_clients = set()
