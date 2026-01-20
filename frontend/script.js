@@ -120,12 +120,6 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-function applyCameraTransform() {
-  const scaleX = canvas.width / WORLD_WIDTH;
-  const scaleY = canvas.height / WORLD_HEIGHT;
-  ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
-}
-
 function drawShip(x, y, rotation) {
   ctx.save();
   ctx.translate(x, y);
@@ -148,8 +142,6 @@ function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (gameState) {
-    applyCameraTransform();
-
     for (const [x, y, rot] of gameState.players) {
       drawShip(x, y, rot);
     }
