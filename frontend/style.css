@@ -47,6 +47,7 @@ body {
   background: var(--modal-bg);
   color: var(--color-text);
   place-self: center;
+  overscroll-behavior: contain;
 }
 
 .modal__title {
@@ -60,14 +61,12 @@ body {
   font-size: var(--btn-font-size);
   padding: var(--btn-padding);
   cursor: pointer;
-
   background: var(--color-bg);
   color: var(--color-accent-primary);
   border: var(--btn-border-width) solid var(--color-accent-primary);
   font-family: var(--font-main);
   letter-spacing: 2px;
   text-transform: uppercase;
-
   box-shadow: 0 0 10px var(--color-accent-primary);
   transition: all var(--transition-fast);
 }
@@ -89,20 +88,21 @@ body {
   color: var(--color-status);
 }
 
-.modal--instructions {
-  text-align: center;
-}
-
 .modal__text {
   margin: 20px 0 30px;
   line-height: 1.6;
   letter-spacing: 1px;
 }
+
 .modal--instructions {
+  text-align: center;
   background: rgba(0, 0, 0, 1);
   border: 2px solid var(--color-accent-primary);
   padding: 32px 40px;
+  width: min(90vw, 520px);
   max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal--instructions .modal__title {
@@ -114,6 +114,7 @@ body {
   font-size: 16px;
   letter-spacing: 0.5px;
 }
+
 .button_flex {
   display: flex;
   gap: 1rem;
@@ -144,24 +145,21 @@ body {
 .key.wide {
   min-width: 80px;
 }
+
 .help-btn {
   position: fixed;
   right: 20px;
   bottom: 20px;
-
   width: 44px;
   height: 44px;
   border-radius: 50%;
-
   background: var(--color-bg);
   color: var(--color-accent-primary);
   border: 2px solid var(--color-accent-primary);
-
   font-family: var(--font-main);
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
-
   box-shadow: 0 0 10px var(--color-accent-primary);
   transition: all var(--transition-fast);
   z-index: 1000;
@@ -177,4 +175,8 @@ body {
 .help-btn:active {
   transform: scale(0.95);
   box-shadow: 0 0 6px var(--color-accent-primary-glow);
+}
+
+body.modal-open {
+  overflow: hidden;
 }

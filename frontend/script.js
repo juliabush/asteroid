@@ -12,18 +12,6 @@ const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
 const helpBtn = document.getElementById("helpBtn");
 helpBtn.style.display = "block";
 
-instructionsBtn.addEventListener("click", () => {
-  instructionsModal.style.display = "block";
-});
-
-closeInstructionsBtn.addEventListener("click", () => {
-  instructionsModal.style.display = "none";
-});
-
-helpBtn.addEventListener("click", () => {
-  instructionsModal.style.display = "block";
-});
-
 let gameState = null;
 
 canvas.focus();
@@ -109,6 +97,19 @@ window.addEventListener("keyup", (e) => {
   if (modal.style.display === "block") return;
   send("input_release", { key: e.key });
 });
+function openInstructions() {
+  instructionsModal.style.display = "block";
+  document.body.classList.add("modal-open");
+}
+
+function closeInstructions() {
+  instructionsModal.style.display = "none";
+  document.body.classList.remove("modal-open");
+}
+
+instructionsBtn.addEventListener("click", openInstructions);
+helpBtn.addEventListener("click", openInstructions);
+closeInstructionsBtn.addEventListener("click", closeInstructions);
 
 restartBtn.addEventListener("click", () => {
   modal.style.display = "none";
