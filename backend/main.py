@@ -22,7 +22,7 @@ PHASE_GAME_OVER = "game_over"
 
 SHIP_RADIUS = 12
 
-VERSION = "v1"
+VERSION = "v2"
 
 client_worlds = {}
 worlds = {}
