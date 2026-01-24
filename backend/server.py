@@ -1,8 +1,9 @@
 import asyncio
 import json
 import websockets
+import main
 
-from main import game_loop, create_world, world
+from main import game_loop, create_world
 from player import Player
 
 connected_clients = set()
@@ -24,10 +25,10 @@ async def handler(websocket):
 
     connected_clients.add(websocket)
 
-    p = Player(world["size"][0] / 2, world["size"][1] / 2)
+    p = Player(main.world["size"][0] / 2, main.world["size"][1] / 2)
     p.shot_cooldown = 0
     p.fire_held = False
-    world["players"][websocket] = p
+    main.world["players"][websocket] = p
 
     player_inputs[websocket] = {
         "up": False,
@@ -53,20 +54,30 @@ async def handler(websocket):
                     player_inputs[websocket][KEY_MAP[key]] = (
                         msg_type == "input"
                     )
+            elif msg_type == "restart":
+                size = main.world["size"]
+                create_world(*size)
+
+                for ws in connected_clients:
+                    p = Player(size[0] / 2, size[1] / 2)
+                    p.shot_cooldown = 0
+                    p.fire_held = False
+                    main.world["players"][ws] = p
+
 
     except websockets.ConnectionClosed:
         pass
     finally:
         connected_clients.discard(websocket)
-        world["players"].pop(websocket, None)
+        main.world["players"].pop(websocket, None)
         player_inputs.pop(websocket, None)
+        
 
-
-async def main():
-    create_world(640, 360)
+async def run_server():
+    create_world(1152, 648)
     async with websockets.serve(handler, "0.0.0.0", 8000):
         await asyncio.Future()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run_server())

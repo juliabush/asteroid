@@ -12,6 +12,8 @@ const helpBtn = document.getElementById("helpBtn");
 helpBtn.style.display = "block";
 
 let gameState = null;
+document.body.style.margin = "0";
+document.body.style.overflow = "hidden";
 
 canvas.focus();
 
@@ -32,7 +34,8 @@ function send(type, payload = {}) {
 function connect() {
   if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
 
-  WS.socket = new WebSocket("wss://juliabush.pl/ws");
+  // WS.socket = new WebSocket("wss://juliabush.pl/ws");
+  WS.socket = new WebSocket("ws://localhost:8000");
 
   WS.socket.onopen = () => {
     WS.connected = true;
@@ -87,6 +90,9 @@ function closeInstructions() {
   instructionsModal.style.display = "none";
   document.body.classList.remove("modal-open");
 }
+restartBtn.addEventListener("click", () => {
+  send("restart");
+});
 
 instructionsBtn.addEventListener("click", openInstructions);
 helpBtn.addEventListener("click", openInstructions);
@@ -125,8 +131,14 @@ function drawShip(x, y, rotation) {
 }
 
 function render() {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const dpr = window.devicePixelRatio || 1;
+
+  const scaleX = canvas.width / dpr / WORLD_WIDTH;
+  const scaleY = canvas.height / dpr / WORLD_HEIGHT;
+
+  ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+
+  ctx.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
   if (gameState) {
     for (const [x, y, rot] of gameState.players) {
