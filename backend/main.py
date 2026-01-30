@@ -20,7 +20,7 @@ pygame.init()
 PHASE_RUNNING = "running"
 PHASE_GAME_OVER = "game_over"
 
-SHIP_RADIUS = 12
+SHIP_RADIUS = 10
 VERSION = "v2"
 
 world = None
