@@ -25,5 +25,6 @@ jobs:
         working-directory: backend
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/backend
-          docker build -t $IMAGE_URI:latest .
-          docker push $IMAGE_URI:latest
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t $IMAGE_URI:$IMAGE_TAG .
+          docker push $IMAGE_URI:$IMAGE_TAG
