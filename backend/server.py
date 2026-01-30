@@ -74,7 +74,7 @@ async def handler(websocket):
         
 
 async def run_server():
-    create_world(1152, 648)
+    create_world(1600, 900)
     async with websockets.serve(handler, "0.0.0.0", 8000):
         await asyncio.Future()
 
