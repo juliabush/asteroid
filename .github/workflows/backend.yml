@@ -30,13 +30,11 @@ jobs:
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
-        env:
-          IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/backend
-          TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: IMAGE,TAG
           script: |
             docker pull $IMAGE:$TAG
             docker stop asteroid-backend || true
@@ -46,3 +44,6 @@ jobs:
               --restart unless-stopped \
               -p 8000:8000 \
               $IMAGE:$TAG
+        env:
+          IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/backend
+          TAG: ${{ github.sha }}
