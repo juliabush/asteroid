@@ -22,7 +22,7 @@ jobs:
       - name: Build and push
         working-directory: backend
         run: |
-          IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/asteroids
+          IMAGE=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/backend
           TAG=${GITHUB_SHA}
           docker build -t $IMAGE:$TAG .
           docker push $IMAGE:$TAG
