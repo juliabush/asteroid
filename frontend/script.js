@@ -12,6 +12,8 @@ const helpBtn = document.getElementById("helpBtn");
 helpBtn.style.display = "block";
 
 let gameState = null;
+let playerId = null;
+
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
 
@@ -34,8 +36,8 @@ function send(type, payload = {}) {
 function connect() {
   if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
 
-  WS.socket = new WebSocket("wss://juliabush.pl/ws");
-  // WS.socket = new WebSocket("ws://localhost:8000");
+  // WS.socket = new WebSocket("wss://juliabush.pl/ws");
+  WS.socket = new WebSocket("ws://localhost:8000");
 
   WS.socket.onopen = () => {
     WS.connected = true;
@@ -56,6 +58,11 @@ function connect() {
 
 function handleMessage(event) {
   const msg = JSON.parse(event.data);
+
+  if (msg.type === "init") {
+    playerId = msg.playerId;
+    return;
+  }
 
   if (msg.world) {
     WORLD_WIDTH = msg.world[0];
@@ -90,6 +97,7 @@ function closeInstructions() {
   instructionsModal.style.display = "none";
   document.body.classList.remove("modal-open");
 }
+
 restartBtn.addEventListener("click", () => {
   send("restart");
 });
@@ -106,8 +114,6 @@ function resizeCanvas() {
 
   canvas.style.width = window.innerWidth + "px";
   canvas.style.height = window.innerHeight + "px";
-
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 window.addEventListener("resize", resizeCanvas);
@@ -136,12 +142,35 @@ function render() {
   const scaleX = canvas.width / dpr / WORLD_WIDTH;
   const scaleY = canvas.height / dpr / WORLD_HEIGHT;
 
-  ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+  let camX = 0;
+  let camY = 0;
 
-  ctx.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  if (gameState && playerId !== null) {
+    const me = gameState.players.find((p) => p[0] === playerId);
+    if (me) {
+      camX = me[1];
+      camY = me[2];
+    }
+  }
+
+  ctx.setTransform(
+    scaleX,
+    0,
+    0,
+    scaleY,
+    canvas.width / (2 * dpr) - camX * scaleX,
+    canvas.height / (2 * dpr) - camY * scaleY,
+  );
+
+  ctx.clearRect(
+    camX - WORLD_WIDTH,
+    camY - WORLD_HEIGHT,
+    WORLD_WIDTH * 2,
+    WORLD_HEIGHT * 2,
+  );
 
   if (gameState) {
-    for (const [x, y, rot] of gameState.players) {
+    for (const [, x, y, rot] of gameState.players) {
       drawShip(x, y, rot);
     }
 

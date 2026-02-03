@@ -38,6 +38,11 @@ async def handler(websocket):
         "space": False,
     }
 
+    await websocket.send(json.dumps({
+        "type": "init",
+        "playerId": id(websocket)
+    }))
+
     if not game_task or game_task.done():
         game_task = asyncio.create_task(
             game_loop(connected_clients, player_inputs)
@@ -64,14 +69,13 @@ async def handler(websocket):
                     p.fire_held = False
                     main.world["players"][ws] = p
 
-
     except websockets.ConnectionClosed:
         pass
     finally:
         connected_clients.discard(websocket)
         main.world["players"].pop(websocket, None)
         player_inputs.pop(websocket, None)
-        
+
 
 async def run_server():
     create_world(1600, 900)

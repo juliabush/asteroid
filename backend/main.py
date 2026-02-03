@@ -119,8 +119,8 @@ async def game_loop(connected_clients, player_inputs):
 
         state = {
             "players": [
-                [p.position.x, p.position.y, p.rotation]
-                for p in world["players"].values()
+            [id(ws), p.position.x, p.position.y, p.rotation]
+            for ws, p in world["players"].items()
             ],
             "asteroids": [
                 [a.position.x, a.position.y, a.radius]
