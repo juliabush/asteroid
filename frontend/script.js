@@ -13,6 +13,9 @@ helpBtn.style.display = "block";
 
 const menu = document.getElementById("menu");
 const playBtn = document.getElementById("playBtn");
+const restartBtn = document.getElementById("restartBtn");
+
+const nicknameInput = document.getElementById("nickname");
 
 let gameState = null;
 let playerId = null;
@@ -50,6 +53,65 @@ const asteroidImages = [
 });
 
 const asteroidSkins = new Map();
+
+const particles = [];
+
+function spawnParticles(x, y, angle) {
+  for (let i = 0; i < 3; i++) {
+    particles.push({
+      x,
+      y,
+      vx: Math.cos(angle + Math.PI) * (1 + Math.random()),
+      vy: Math.sin(angle + Math.PI) * (1 + Math.random()),
+      life: 40 + Math.random() * 20,
+      size: 2 + Math.random() * 2,
+      alpha: 1,
+    });
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx *= 0.96;
+    p.vy *= 0.96;
+    p.life -= 1;
+    p.alpha = p.life / 60;
+
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    const t = 1 - p.alpha;
+
+    let r;
+    let g;
+    let b;
+
+    if (t < 0.5) {
+      const k = t / 0.5;
+      r = 20 + k * 120;
+      g = 20 + k * 120;
+      b = 20 + k * 120;
+    } else {
+      const k = (t - 0.5) / 0.5;
+      r = 140 + k * 115;
+      g = 140 + k * 115;
+      b = 140 + k * 115;
+    }
+
+    ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
 
 function send(type, payload = {}) {
   if (!WS.socket || WS.socket.readyState !== WebSocket.OPEN) return;
@@ -93,7 +155,6 @@ function handleMessage(event) {
 
   if (msg.type === "state") {
     gameState = msg.data;
-
     const isGameOver = msg.phase === "game_over";
     modal.style.display = isGameOver ? "block" : "none";
     helpBtn.style.display = isGameOver ? "none" : "block";
@@ -101,54 +162,26 @@ function handleMessage(event) {
 }
 
 window.addEventListener("keydown", (e) => {
+  if (e.target === nicknameInput) return;
+
   e.preventDefault();
   if (e.key === "ArrowUp" || e.key === "w") thrusting = true;
   send("input", { key: e.key });
 });
 
 window.addEventListener("keyup", (e) => {
+  if (e.target === nicknameInput) return;
+
   e.preventDefault();
   if (e.key === "ArrowUp" || e.key === "w") thrusting = false;
   send("input_release", { key: e.key });
 });
 
-function openInstructions() {
-  instructionsModal.style.display = "block";
-  document.body.classList.add("modal-open");
-}
-
-function closeInstructions() {
-  instructionsModal.style.display = "none";
-  document.body.classList.remove("modal-open");
-}
-
 restartBtn.addEventListener("click", () => {
+  particles.length = 0;
+  modal.style.display = "none";
   send("restart");
 });
-
-instructionsBtn.addEventListener("click", openInstructions);
-helpBtn.addEventListener("click", openInstructions);
-closeInstructionsBtn.addEventListener("click", closeInstructions);
-
-function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
-
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = window.innerHeight + "px";
-}
-
-window.addEventListener("resize", resizeCanvas);
-
-function drawWorldBounds() {
-  ctx.save();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-  ctx.restore();
-}
 
 function drawShip(x, y, rotation) {
   ctx.save();
@@ -158,9 +191,19 @@ function drawShip(x, y, rotation) {
   if (thrusting) {
     const flicker = Math.random() * 5;
 
+    const angle = (rotation * Math.PI) / 180 - Math.PI / 4 - 0.7;
+
+    const flameOffset = 12;
+
+    spawnParticles(
+      x - Math.cos(angle) * flameOffset,
+      y - Math.sin(angle) * flameOffset,
+      angle,
+    );
+
     ctx.save();
     ctx.rotate(Math.PI);
-
+    ctx.translate(0, 10);
     ctx.fillStyle = "orange";
     ctx.beginPath();
     ctx.moveTo(0, -30);
@@ -176,15 +219,12 @@ function drawShip(x, y, rotation) {
     ctx.lineTo(4, -42 - flicker);
     ctx.closePath();
     ctx.fill();
-
     ctx.restore();
   }
 
   ctx.rotate((-45 * Math.PI) / 180);
-
   const size = 45;
   ctx.drawImage(shipImage, -size / 2, -size / 2, size, size);
-
   ctx.restore();
 }
 
@@ -221,11 +261,21 @@ function render() {
     WORLD_HEIGHT * 2,
   );
 
-  if (gameState) {
-    drawWorldBounds();
+  updateParticles();
+  drawParticles();
 
-    for (const [, x, y, rot] of gameState.players) {
+  if (gameState) {
+    for (const [, x, y, rot, nickname] of gameState.players) {
       drawShip(x, y, rot);
+
+      if (nickname) {
+        ctx.save();
+        ctx.fillStyle = "white";
+        ctx.font = "14px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(nickname, x, y - 35);
+        ctx.restore();
+      }
     }
 
     for (const [id, x, y, r] of gameState.asteroids) {
@@ -254,9 +304,23 @@ function render() {
   requestAnimationFrame(render);
 }
 
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+}
+
+window.addEventListener("resize", resizeCanvas);
+
 playBtn.addEventListener("click", () => {
   if (started) return;
   started = true;
+
+  const nickname = nicknameInput.value.trim();
 
   menu.style.display = "none";
   canvas.style.display = "block";
@@ -264,5 +328,14 @@ playBtn.addEventListener("click", () => {
 
   resizeCanvas();
   connect();
+
+  if (WS.socket.readyState === WebSocket.OPEN) {
+    send("set_nickname", { nickname });
+  } else {
+    WS.socket.addEventListener("open", () => {
+      send("set_nickname", { nickname });
+    });
+  }
+
   render();
 });

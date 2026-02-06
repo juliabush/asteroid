@@ -120,9 +120,16 @@ async def game_loop(connected_clients, player_inputs):
 
         state = {
             "players": [
-                [id(ws), p.position.x, p.position.y, p.rotation]
-                for ws, p in world["players"].items()
+            [
+                id(ws),
+                p.position.x,
+                p.position.y,
+                p.rotation,
+                getattr(p, "nickname", "")
+            ]
+              for ws, p in world["players"].items()
             ],
+
             "asteroids": [
                 [a.id, a.position.x, a.position.y, a.radius]
                 for a in world["asteroids"]

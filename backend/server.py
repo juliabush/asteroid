@@ -26,7 +26,7 @@ async def handler(websocket):
     connected_clients.add(websocket)
 
     w, h = main.world["size"]
-    p = Player(w / 2, h / 2)
+    p = Player(w / 2, h / 2 + 250)
     p.shot_cooldown = 0
     p.fire_held = False
     main.world["players"][websocket] = p
@@ -60,15 +60,21 @@ async def handler(websocket):
                     player_inputs[websocket][KEY_MAP[key]] = (
                         msg_type == "input"
                     )
+            elif msg_type == "set_nickname":
+                nickname = data.get("nickname", "").strip()
+                if websocket in main.world["players"]:
+                    main.world["players"][websocket].nickname = nickname
+
             elif msg_type == "restart":
                 size = main.world["size"]
                 create_world(*size)
 
                 for ws in connected_clients:
-                    p = Player(size[0] / 2, size[1] / 2)
+                    p = Player(size[0] / 2, size[1] / 2 + 250)
                     p.shot_cooldown = 0
                     p.fire_held = False
                     main.world["players"][ws] = p
+
 
     except websockets.ConnectionClosed:
         pass
@@ -79,7 +85,7 @@ async def handler(websocket):
 
 
 async def run_server():
-    create_world(6000, 3000)
+    create_world(1600, 900)
     async with websockets.serve(handler, "0.0.0.0", 8000):
         await asyncio.Future()
 

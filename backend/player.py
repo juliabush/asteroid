@@ -16,6 +16,7 @@ class Player(CircleShape):
         self.rotation = 0
         self.shot_cooldown = 0
         self.fire_held = False
+        self.nickname = ""
 
     def triangle(self):
         forward = pygame.Vector2(0, -1).rotate(self.rotation)
