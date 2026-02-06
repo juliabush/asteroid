@@ -25,7 +25,8 @@ async def handler(websocket):
 
     connected_clients.add(websocket)
 
-    p = Player(main.world["size"][0] / 2, main.world["size"][1] / 2)
+    w, h = main.world["size"]
+    p = Player(w / 2, h / 2)
     p.shot_cooldown = 0
     p.fire_held = False
     main.world["players"][websocket] = p
@@ -78,7 +79,7 @@ async def handler(websocket):
 
 
 async def run_server():
-    create_world(1600, 900)
+    create_world(6000, 3000)
     async with websockets.serve(handler, "0.0.0.0", 8000):
         await asyncio.Future()
 

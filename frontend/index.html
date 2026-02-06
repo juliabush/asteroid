@@ -15,8 +15,19 @@
   </head>
 
   <body class="game">
-    <canvas id="gameCanvas" class="game__canvas"></canvas>
-    <p id="status" class="game__status">Connecting to server...</p>
+    <div id="menu" class="menu">
+      <div class="menu__panel">
+        <h1>Asteroids</h1>
+        <input id="nickname" placeholder="Nickname" />
+        <button id="playBtn">Play</button>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas" class="game__canvas" style="display: none"></canvas>
+
+    <p id="status" class="game__status" style="display: none">
+      Connecting to server...
+    </p>
 
     <div class="shooting-star"></div>
 
@@ -30,6 +41,7 @@
         <button id="instructionsBtn" class="modal__action">Instructions</button>
       </div>
     </div>
+
     <button id="helpBtn" class="help-btn">?</button>
 
     <div
@@ -59,8 +71,9 @@
           <div class="key">→</div>
           <span>Rotate Right</span>
         </div>
+
         <div class="controls__row">
-          <div class="key">s</div>
+          <div class="key">S</div>
           <div class="key">⬇</div>
           <span>Move down</span>
         </div>
@@ -80,6 +93,7 @@
 
       <button id="closeInstructionsBtn" class="modal__action">Close</button>
     </div>
+
     <script src="script.js" defer></script>
   </body>
 </html>

@@ -11,8 +11,13 @@ const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
 const helpBtn = document.getElementById("helpBtn");
 helpBtn.style.display = "block";
 
+const menu = document.getElementById("menu");
+const playBtn = document.getElementById("playBtn");
+
 let gameState = null;
 let playerId = null;
+let thrusting = false;
+let started = false;
 
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
@@ -28,6 +33,24 @@ const WS = {
   reconnectTimer: null,
 };
 
+const shipImage = new Image();
+shipImage.src = "./public/rocket.png";
+
+const asteroidImages = [
+  "./public/blue.jpg",
+  "./public/creme.jpg",
+  "./public/moon.jpg",
+  "./public/orange.jpg",
+  "./public/pink.jpg",
+  "./public/saturn.jpeg",
+].map((src) => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
+
+const asteroidSkins = new Map();
+
 function send(type, payload = {}) {
   if (!WS.socket || WS.socket.readyState !== WebSocket.OPEN) return;
   WS.socket.send(JSON.stringify({ type, ...payload }));
@@ -36,7 +59,6 @@ function send(type, payload = {}) {
 function connect() {
   if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
 
-  // WS.socket = new WebSocket("wss://juliabush.pl/ws");
   WS.socket = new WebSocket("ws://localhost:8000");
 
   WS.socket.onopen = () => {
@@ -80,11 +102,13 @@ function handleMessage(event) {
 
 window.addEventListener("keydown", (e) => {
   e.preventDefault();
+  if (e.key === "ArrowUp" || e.key === "w") thrusting = true;
   send("input", { key: e.key });
 });
 
 window.addEventListener("keyup", (e) => {
   e.preventDefault();
+  if (e.key === "ArrowUp" || e.key === "w") thrusting = false;
   send("input_release", { key: e.key });
 });
 
@@ -117,21 +141,49 @@ function resizeCanvas() {
 }
 
 window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+
+function drawWorldBounds() {
+  ctx.save();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  ctx.restore();
+}
 
 function drawShip(x, y, rotation) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate((rotation * Math.PI) / 180);
 
-  const size = 12;
-  ctx.strokeStyle = "white";
-  ctx.beginPath();
-  ctx.moveTo(0, -size);
-  ctx.lineTo(-size, size);
-  ctx.lineTo(size, size);
-  ctx.closePath();
-  ctx.stroke();
+  if (thrusting) {
+    const flicker = Math.random() * 5;
+
+    ctx.save();
+    ctx.rotate(Math.PI);
+
+    ctx.fillStyle = "orange";
+    ctx.beginPath();
+    ctx.moveTo(0, -30);
+    ctx.lineTo(-9 - flicker, -52 - flicker);
+    ctx.lineTo(9 + flicker, -52 - flicker);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.moveTo(0, -26);
+    ctx.lineTo(-4, -42 - flicker);
+    ctx.lineTo(4, -42 - flicker);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  ctx.rotate((-45 * Math.PI) / 180);
+
+  const size = 45;
+  ctx.drawImage(shipImage, -size / 2, -size / 2, size, size);
 
   ctx.restore();
 }
@@ -170,15 +222,27 @@ function render() {
   );
 
   if (gameState) {
+    drawWorldBounds();
+
     for (const [, x, y, rot] of gameState.players) {
       drawShip(x, y, rot);
     }
 
-    ctx.strokeStyle = "gray";
-    for (const [x, y, r] of gameState.asteroids) {
+    for (const [id, x, y, r] of gameState.asteroids) {
+      if (!asteroidSkins.has(id)) {
+        const img =
+          asteroidImages[Math.floor(Math.random() * asteroidImages.length)];
+        asteroidSkins.set(id, img);
+      }
+
+      const img = asteroidSkins.get(id);
+
+      ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.clip();
+      ctx.drawImage(img, x - r, y - r, r * 2, r * 2);
+      ctx.restore();
     }
 
     ctx.fillStyle = "white";
@@ -190,5 +254,15 @@ function render() {
   requestAnimationFrame(render);
 }
 
-connect();
-render();
+playBtn.addEventListener("click", () => {
+  if (started) return;
+  started = true;
+
+  menu.style.display = "none";
+  canvas.style.display = "block";
+  statusEl.style.display = "block";
+
+  resizeCanvas();
+  connect();
+  render();
+});

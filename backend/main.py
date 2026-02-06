@@ -26,16 +26,16 @@ VERSION = "v2"
 world = None
 
 
-def wrap_position(pos, w, h):
-    if pos.x < -SHIP_RADIUS:
-        pos.x = w + SHIP_RADIUS
-    elif pos.x > w + SHIP_RADIUS:
-        pos.x = -SHIP_RADIUS
+def clamp_position(pos, radius, w, h):
+    if pos.x < radius:
+        pos.x = radius
+    elif pos.x > w - radius:
+        pos.x = w - radius
 
-    if pos.y < -SHIP_RADIUS:
-        pos.y = h + SHIP_RADIUS
-    elif pos.y > h + SHIP_RADIUS:
-        pos.y = -SHIP_RADIUS
+    if pos.y < radius:
+        pos.y = radius
+    elif pos.y > h - radius:
+        pos.y = h - radius
 
 
 def create_world(w, h):
@@ -71,10 +71,11 @@ def run_game_step(dt):
     updatable.update(dt)
 
     for asteroid in asteroids:
-        wrap_position(asteroid.position, w, h)
+        clamp_position(asteroid.position, asteroid.radius, w, h)
 
     for player in world["players"].values():
-        wrap_position(player.position, w, h)
+        clamp_position(player.position, SHIP_RADIUS, w, h)
+
         for asteroid in asteroids:
             if asteroid.collides_with(player):
                 world["phase"] = PHASE_GAME_OVER
@@ -119,11 +120,11 @@ async def game_loop(connected_clients, player_inputs):
 
         state = {
             "players": [
-            [id(ws), p.position.x, p.position.y, p.rotation]
-            for ws, p in world["players"].items()
+                [id(ws), p.position.x, p.position.y, p.rotation]
+                for ws, p in world["players"].items()
             ],
             "asteroids": [
-                [a.position.x, a.position.y, a.radius]
+                [a.id, a.position.x, a.position.y, a.radius]
                 for a in world["asteroids"]
             ],
             "shots": [

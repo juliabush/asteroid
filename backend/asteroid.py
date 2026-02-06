@@ -6,9 +6,12 @@ from constants import LINE_WIDTH, WHITE, ASTEROID_MIN_RADIUS
 
 class Asteroid(CircleShape):
     containers = ()
+    _id_counter = 0
 
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
+        self.id = Asteroid._id_counter
+        Asteroid._id_counter += 1
 
 
     def draw(self, screen):
