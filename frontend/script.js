@@ -56,6 +56,23 @@ const asteroidSkins = new Map();
 
 const particles = [];
 
+const music = new Audio("./public/ObservingTheStar.ogg");
+music.loop = true;
+music.volume = 0.2;
+
+const thrustSound = new Audio("./public/rocket.wav");
+thrustSound.loop = true;
+thrustSound.volume = 0.2;
+
+const shootSound = new Audio("./public/shoot.wav");
+shootSound.volume = 0.7;
+
+let CAMERA_ZOOM = 1;
+
+function updateCameraZoom() {
+  CAMERA_ZOOM = window.innerWidth < 1000 ? 2 : 1;
+}
+
 function spawnParticles(x, y, angle) {
   for (let i = 0; i < 3; i++) {
     particles.push({
@@ -158,14 +175,26 @@ function handleMessage(event) {
     const isGameOver = msg.phase === "game_over";
     modal.style.display = isGameOver ? "block" : "none";
     helpBtn.style.display = isGameOver ? "none" : "block";
+
+    if (isGameOver) {
+      music.pause();
+      music.currentTime = 0;
+      thrustSound.pause();
+      thrustSound.currentTime = 0;
+    }
   }
 }
 
 window.addEventListener("keydown", (e) => {
   if (e.target === nicknameInput) return;
 
+  if (e.key === " ") shootSound.cloneNode().play();
+
   e.preventDefault();
-  if (e.key === "ArrowUp" || e.key === "w") thrusting = true;
+  if (e.key === "ArrowUp" || e.key === "w") {
+    thrusting = true;
+    if (thrustSound.paused) thrustSound.play();
+  }
   send("input", { key: e.key });
 });
 
@@ -173,7 +202,11 @@ window.addEventListener("keyup", (e) => {
   if (e.target === nicknameInput) return;
 
   e.preventDefault();
-  if (e.key === "ArrowUp" || e.key === "w") thrusting = false;
+  if (e.key === "ArrowUp" || e.key === "w") {
+    thrusting = false;
+    thrustSound.pause();
+    thrustSound.currentTime = 0;
+  }
   send("input_release", { key: e.key });
 });
 
@@ -227,12 +260,22 @@ function drawShip(x, y, rotation) {
   ctx.drawImage(shipImage, -size / 2, -size / 2, size, size);
   ctx.restore();
 }
+function drawWorldBounds() {
+  ctx.save();
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 2 / CAMERA_ZOOM;
+  ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  ctx.restore();
+}
 
 function render() {
   const dpr = window.devicePixelRatio || 1;
 
-  const scaleX = canvas.width / dpr / WORLD_WIDTH;
-  const scaleY = canvas.height / dpr / WORLD_HEIGHT;
+  const scale =
+    Math.min(
+      canvas.width / dpr / WORLD_WIDTH,
+      canvas.height / dpr / WORLD_HEIGHT,
+    ) * CAMERA_ZOOM;
 
   let camX = 0;
   let camY = 0;
@@ -246,12 +289,12 @@ function render() {
   }
 
   ctx.setTransform(
-    scaleX,
+    scale,
     0,
     0,
-    scaleY,
-    canvas.width / (2 * dpr) - camX * scaleX,
-    canvas.height / (2 * dpr) - camY * scaleY,
+    scale,
+    canvas.width / (2 * dpr) - camX * scale,
+    canvas.height / (2 * dpr) - camY * scale,
   );
 
   ctx.clearRect(
@@ -260,6 +303,8 @@ function render() {
     WORLD_WIDTH * 2,
     WORLD_HEIGHT * 2,
   );
+
+  drawWorldBounds();
 
   updateParticles();
   drawParticles();
@@ -305,6 +350,8 @@ function render() {
 }
 
 function resizeCanvas() {
+  updateCameraZoom();
+
   const dpr = window.devicePixelRatio || 1;
 
   canvas.width = window.innerWidth * dpr;
@@ -317,6 +364,8 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 
 playBtn.addEventListener("click", () => {
+  music.play();
+
   if (started) return;
   started = true;
 
@@ -336,6 +385,7 @@ playBtn.addEventListener("click", () => {
       send("set_nickname", { nickname });
     });
   }
+  updateCameraZoom();
 
   render();
 });
