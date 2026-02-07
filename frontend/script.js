@@ -13,7 +13,6 @@ helpBtn.style.display = "block";
 
 const menu = document.getElementById("menu");
 const playBtn = document.getElementById("playBtn");
-const restartBtn = document.getElementById("restartBtn");
 
 const nicknameInput = document.getElementById("nickname");
 
@@ -21,6 +20,7 @@ let gameState = null;
 let playerId = null;
 let thrusting = false;
 let started = false;
+let gameOverTimeout = null;
 
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
@@ -65,7 +65,7 @@ thrustSound.loop = true;
 thrustSound.volume = 0.2;
 
 const shootSound = new Audio("./public/shoot.wav");
-shootSound.volume = 0.7;
+shootSound.volume = 0.03;
 
 let CAMERA_ZOOM = 1;
 
@@ -171,16 +171,42 @@ function handleMessage(event) {
   }
 
   if (msg.type === "state") {
-    gameState = msg.data;
+    if (!started) return;
+
     const isGameOver = msg.phase === "game_over";
+
+    if (!isGameOver && gameOverTimeout) {
+      clearTimeout(gameOverTimeout);
+      gameOverTimeout = null;
+    }
+    gameState = msg.data;
     modal.style.display = isGameOver ? "block" : "none";
     helpBtn.style.display = isGameOver ? "none" : "block";
 
-    if (isGameOver) {
+    if (isGameOver && !gameOverTimeout) {
       music.pause();
       music.currentTime = 0;
       thrustSound.pause();
       thrustSound.currentTime = 0;
+
+      started = false;
+
+      modal.style.display = "block";
+      helpBtn.style.display = "none";
+
+      gameOverTimeout = setTimeout(() => {
+        modal.style.display = "none";
+
+        canvas.style.display = "none";
+        statusEl.style.display = "none";
+        menu.style.display = "flex";
+
+        particles.length = 0;
+        gameState = null;
+
+        send("restart");
+        gameOverTimeout = null;
+      }, 2000);
     }
   }
 }
@@ -208,12 +234,6 @@ window.addEventListener("keyup", (e) => {
     thrustSound.currentTime = 0;
   }
   send("input_release", { key: e.key });
-});
-
-restartBtn.addEventListener("click", () => {
-  particles.length = 0;
-  modal.style.display = "none";
-  send("restart");
 });
 
 function drawShip(x, y, rotation) {
@@ -364,10 +384,16 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 
 playBtn.addEventListener("click", () => {
-  music.play();
-
   if (started) return;
   started = true;
+
+  if (gameOverTimeout) {
+    clearTimeout(gameOverTimeout);
+    gameOverTimeout = null;
+  }
+
+  music.currentTime = 0;
+  music.play();
 
   const nickname = nicknameInput.value.trim();
 
@@ -385,7 +411,7 @@ playBtn.addEventListener("click", () => {
       send("set_nickname", { nickname });
     });
   }
-  updateCameraZoom();
 
+  updateCameraZoom();
   render();
 });
