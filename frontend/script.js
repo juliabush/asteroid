@@ -37,15 +37,15 @@ const WS = {
 };
 
 const shipImage = new Image();
-shipImage.src = "./public/rocket.png";
+shipImage.src = "public/rocket.png";
 
 const asteroidImages = [
-  "./public/blue.jpg",
-  "./public/creme.jpg",
-  "./public/moon.jpg",
-  "./public/orange.jpg",
-  "./public/pink.jpg",
-  "./public/saturn.jpeg",
+  "public/blue.jpg",
+  "public/creme.jpg",
+  "public/moon.jpg",
+  "public/orange.jpg",
+  "public/pink.jpg",
+  "public/saturn.jpeg",
 ].map((src) => {
   const img = new Image();
   img.src = src;
@@ -56,15 +56,15 @@ const asteroidSkins = new Map();
 
 const particles = [];
 
-const music = new Audio("./public/ObservingTheStar.ogg");
+const music = new Audio("public/ObservingTheStar.ogg");
 music.loop = true;
 music.volume = 0.2;
 
-const thrustSound = new Audio("./public/rocket.wav");
+const thrustSound = new Audio("public/rocket.wav");
 thrustSound.loop = true;
 thrustSound.volume = 0.2;
 
-const shootSound = new Audio("./public/shoot.wav");
+const shootSound = new Audio("public/shoot.wav");
 shootSound.volume = 0.03;
 
 let CAMERA_ZOOM = 1;
