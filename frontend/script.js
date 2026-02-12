@@ -22,6 +22,7 @@ let playerId = null;
 let thrusting = false;
 let started = false;
 let gameOverTimeout = null;
+let rendering = false;
 
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
@@ -328,6 +329,13 @@ function drawWorldBounds() {
 }
 
 function render() {
+  if (!started) {
+    rendering = false;
+    return;
+  }
+
+  rendering = true;
+
   const dpr = window.devicePixelRatio || 1;
 
   const scale =
@@ -364,14 +372,12 @@ function render() {
   );
 
   drawWorldBounds();
-
   updateParticles();
   drawParticles();
 
   if (gameState) {
     for (const [, x, y, rot, nickname] of gameState.players) {
       drawShip(x, y, rot);
-
       if (nickname) {
         ctx.save();
         ctx.fillStyle = "white";
@@ -453,5 +459,5 @@ playBtn.addEventListener("click", () => {
   }
 
   updateCameraZoom();
-  render();
+  if (!rendering) render();
 });
