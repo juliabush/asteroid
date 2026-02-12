@@ -428,7 +428,6 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 
 playBtn.addEventListener("click", () => {
-  if (started) return;
   started = true;
 
   if (gameOverTimeout) {
