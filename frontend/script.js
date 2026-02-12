@@ -179,11 +179,13 @@ function handleMessage(event) {
 
     gameState = msg.data;
 
-    // Show/hide modal and help button safely
     if (modal) modal.style.display = isGameOver ? "block" : "none";
     if (helpBtn) helpBtn.style.display = isGameOver ? "none" : "block";
 
-    if (!isGameOver && music.paused) {
+    if (isGameOver) {
+      music.pause();
+      music.currentTime = 0;
+    } else if (started && music.paused) {
       music.currentTime = 0;
       music.play().catch(() => {});
     }
