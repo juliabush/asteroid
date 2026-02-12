@@ -15,6 +15,8 @@ const nicknameInput = document.getElementById("nickname");
 
 const homeBtn = document.getElementById("homeBtn");
 
+const instructionsBox = document.querySelector(".instructions-box");
+
 let gameState = null;
 let playerId = null;
 let thrusting = false;
@@ -78,6 +80,7 @@ homeBtn.addEventListener("click", () => {
   canvas.style.display = "none";
   statusEl.style.display = "none";
   menu.style.display = "";
+  instructionsBox.style.display = "";
 
   started = false;
   gameState = null;
@@ -437,6 +440,7 @@ playBtn.addEventListener("click", () => {
   const nickname = nicknameInput.value.trim();
 
   menu.style.display = "none";
+  instructionsBox.style.display = "none";
   canvas.style.display = "block";
   statusEl.style.display = "block";
 
