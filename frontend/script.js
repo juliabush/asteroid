@@ -438,7 +438,6 @@ playBtn.addEventListener("click", () => {
   menu.style.display = "none";
   instructionsBox.style.display = "none";
   canvas.style.display = "block";
-  statusEl.style.display = "block";
 
   resizeCanvas();
   connect();
