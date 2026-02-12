@@ -8,14 +8,6 @@ const instructionsBtn = document.getElementById("instructionsBtn");
 const instructionsModal = document.getElementById("instructionsModal");
 const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
 
-const helpBtn = document.getElementById("helpBtn");
-
-if (helpBtn) {
-  helpBtn.style.display = "none";
-} else {
-  console.error("helpBtn not found!");
-}
-
 const menu = document.getElementById("menu");
 const playBtn = document.getElementById("playBtn");
 
