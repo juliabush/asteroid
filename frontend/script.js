@@ -209,6 +209,9 @@ function handleMessage(event) {
     if (isGameOver) {
       music.pause();
       music.currentTime = 0;
+      music.loop = false;
+    } else {
+      music.loop = true;
     }
 
     if (isGameOver && !gameOverTimeout) {
@@ -218,6 +221,9 @@ function handleMessage(event) {
       thrustSound.currentTime = 0;
 
       started = false;
+      gameState = null;
+      particles.length = 0;
+      asteroidSkins.clear();
 
       if (modal) modal.style.display = "block";
       if (helpBtn) helpBtn.style.display = "none";
@@ -227,9 +233,6 @@ function handleMessage(event) {
         canvas.style.display = "none";
         statusEl.style.display = "none";
         menu.style.display = "";
-
-        particles.length = 0;
-        gameState = null;
 
         send("restart");
         gameOverTimeout = null;
