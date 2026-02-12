@@ -72,7 +72,7 @@ homeBtn.addEventListener("click", () => {
   modal.style.display = "none";
   canvas.style.display = "none";
   statusEl.style.display = "none";
-  menu.style.display = "flex";
+  menu.style.display = "";
 
   started = false;
   gameState = null;
@@ -221,7 +221,7 @@ function handleMessage(event) {
         if (modal) modal.style.display = "none";
         canvas.style.display = "none";
         statusEl.style.display = "none";
-        menu.style.display = "flex";
+        menu.style.display = "";
 
         particles.length = 0;
         gameState = null;
