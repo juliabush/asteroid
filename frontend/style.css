@@ -149,6 +149,27 @@ body {
 .game__status {
   color: var(--color-status);
 }
+#helpBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 0.6rem 0.8rem;
+  font-size: 1.2rem;
+  border: 2px solid var(--color-accent-primary);
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--color-accent-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--color-accent-primary-glow);
+  z-index: 1000;
+  display: none;
+}
+
+#helpBtn:hover {
+  background: var(--color-accent-primary);
+  color: #020617;
+}
+
 @media (min-width: 900px) {
   .game {
     grid-template-columns: auto auto;
