@@ -2,7 +2,8 @@ name: Backend CI/CD
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -31,7 +32,7 @@ jobs:
           docker build -t $IMAGE:$TAG .
           docker push $IMAGE:$TAG
 
-            - name: Deploy to EC2
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -40,8 +41,7 @@ jobs:
           port: 22
           script: |
             echo "Logging into ECR..."
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-            | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
             echo "Pulling latest Docker image..."
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/backend:${{ github.sha }}
