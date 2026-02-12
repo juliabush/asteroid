@@ -210,9 +210,6 @@ function handleMessage(event) {
     if (isGameOver) {
       music.pause();
       music.currentTime = 0;
-    } else if (started && music.paused) {
-      music.currentTime = 0;
-      music.play().catch(() => {});
     }
 
     if (isGameOver && !gameOverTimeout) {
