@@ -1,7 +1,6 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const statusEl = document.getElementById("status");
 const modal = document.getElementById("gameOverModal");
 
 const instructionsBtn = document.getElementById("instructionsBtn");
@@ -79,7 +78,6 @@ homeBtn.addEventListener("click", () => {
 
   modal.style.display = "none";
   canvas.style.display = "none";
-  statusEl.style.display = "none";
   menu.style.display = "";
   instructionsBox.style.display = "";
 
@@ -165,13 +163,11 @@ function connect() {
 
   WS.socket.onopen = () => {
     WS.connected = true;
-    statusEl.textContent = "Connected";
     clearTimeout(WS.reconnectTimer);
   };
 
   WS.socket.onclose = () => {
     WS.connected = false;
-    statusEl.textContent = "Disconnected";
     WS.reconnectTimer = setTimeout(connect, 2000);
   };
 
@@ -229,7 +225,6 @@ function handleMessage(event) {
       gameOverTimeout = setTimeout(() => {
         if (modal) modal.style.display = "none";
         canvas.style.display = "none";
-        statusEl.style.display = "none";
         menu.style.display = "";
 
         send("restart");
