@@ -3,16 +3,23 @@ const ctx = canvas.getContext("2d");
 
 const statusEl = document.getElementById("status");
 const modal = document.getElementById("gameOverModal");
-const helpBtn = document.getElementById("helpBtn");
-const menu = document.getElementById("menu");
-const playBtn = document.getElementById("playBtn");
-const nicknameInput = document.getElementById("nickname");
 
 const instructionsBtn = document.getElementById("instructionsBtn");
 const instructionsModal = document.getElementById("instructionsModal");
 const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
 
-if (helpBtn) helpBtn.style.display = "none";
+const helpBtn = document.getElementById("helpBtn");
+
+if (helpBtn) {
+  helpBtn.style.display = "none";
+} else {
+  console.error("helpBtn not found!");
+}
+
+const menu = document.getElementById("menu");
+const playBtn = document.getElementById("playBtn");
+
+const nicknameInput = document.getElementById("nickname");
 
 let gameState = null;
 let playerId = null;
@@ -51,6 +58,7 @@ const asteroidImages = [
 });
 
 const asteroidSkins = new Map();
+
 const particles = [];
 
 const music = new Audio("public/ObservingTheStar.ogg");
@@ -93,14 +101,21 @@ function updateParticles() {
     p.vy *= 0.96;
     p.life -= 1;
     p.alpha = p.life / 60;
-    if (p.life <= 0) particles.splice(i, 1);
+
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+    }
   }
 }
 
 function drawParticles() {
   for (const p of particles) {
     const t = 1 - p.alpha;
-    let r, g, b;
+
+    let r;
+    let g;
+    let b;
+
     if (t < 0.5) {
       const k = t / 0.5;
       r = 20 + k * 120;
@@ -112,6 +127,7 @@ function drawParticles() {
       g = 140 + k * 115;
       b = 140 + k * 115;
     }
+
     ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -131,17 +147,19 @@ function connect() {
 
   WS.socket.onopen = () => {
     WS.connected = true;
-    if (statusEl) statusEl.textContent = "Connected";
+    statusEl.textContent = "Connected";
     clearTimeout(WS.reconnectTimer);
   };
 
   WS.socket.onclose = () => {
     WS.connected = false;
-    if (statusEl) statusEl.textContent = "Disconnected";
+    statusEl.textContent = "Disconnected";
     WS.reconnectTimer = setTimeout(connect, 2000);
   };
 
-  WS.socket.onmessage = (e) => handleMessage({ data: e.data });
+  WS.socket.onmessage = (e) => {
+    handleMessage({ data: e.data });
+  };
 }
 
 function handleMessage(event) {
@@ -161,19 +179,23 @@ function handleMessage(event) {
     if (!started) return;
 
     const isGameOver = msg.phase === "game_over";
+
+    if (!isGameOver && gameOverTimeout) {
+      clearTimeout(gameOverTimeout);
+      gameOverTimeout = null;
+    }
+
     gameState = msg.data;
 
-    // Safely show/hide modal and helpBtn
+    // Show/hide modal and help button safely
     if (modal) modal.style.display = isGameOver ? "block" : "none";
     if (helpBtn) helpBtn.style.display = isGameOver ? "none" : "block";
 
-    // Play music only when the game actually starts
     if (!isGameOver && music.paused) {
       music.currentTime = 0;
       music.play().catch(() => {});
     }
 
-    // Handle game over
     if (isGameOver && !gameOverTimeout) {
       music.pause();
       music.currentTime = 0;
@@ -187,9 +209,9 @@ function handleMessage(event) {
 
       gameOverTimeout = setTimeout(() => {
         if (modal) modal.style.display = "none";
-        if (canvas) canvas.style.display = "none";
-        if (statusEl) statusEl.style.display = "none";
-        if (menu) menu.style.display = "flex";
+        canvas.style.display = "none";
+        statusEl.style.display = "none";
+        menu.style.display = "flex";
 
         particles.length = 0;
         gameState = null;
@@ -212,7 +234,9 @@ window.addEventListener("keydown", (e) => {
   e.preventDefault();
   if (e.key === "ArrowUp" || e.key === "w") {
     thrusting = true;
-    if (thrustSound.paused) thrustSound.play().catch(() => {});
+    if (thrustSound.paused) {
+      thrustSound.play().catch(() => {});
+    }
   }
   send("input", { key: e.key });
 });
@@ -236,7 +260,9 @@ function drawShip(x, y, rotation) {
 
   if (thrusting) {
     const flicker = Math.random() * 5;
+
     const angle = (rotation * Math.PI) / 180 - Math.PI / 4 - 0.7;
+
     const flameOffset = 12;
 
     spawnParticles(
@@ -271,7 +297,6 @@ function drawShip(x, y, rotation) {
   ctx.drawImage(shipImage, -size / 2, -size / 2, size, size);
   ctx.restore();
 }
-
 function drawWorldBounds() {
   ctx.save();
   ctx.strokeStyle = "red";
@@ -282,6 +307,7 @@ function drawWorldBounds() {
 
 function render() {
   const dpr = window.devicePixelRatio || 1;
+
   const scale =
     Math.min(
       canvas.width / dpr / WORLD_WIDTH,
@@ -316,6 +342,7 @@ function render() {
   );
 
   drawWorldBounds();
+
   updateParticles();
   drawParticles();
 
@@ -361,43 +388,47 @@ function render() {
 
 function resizeCanvas() {
   updateCameraZoom();
+
   const dpr = window.devicePixelRatio || 1;
+
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
+
   canvas.style.width = window.innerWidth + "px";
   canvas.style.height = window.innerHeight + "px";
 }
 
 window.addEventListener("resize", resizeCanvas);
 
-if (playBtn) {
-  playBtn.addEventListener("click", () => {
-    if (started) return;
-    started = true;
+playBtn.addEventListener("click", () => {
+  if (started) return;
+  started = true;
 
-    if (gameOverTimeout) {
-      clearTimeout(gameOverTimeout);
-      gameOverTimeout = null;
-    }
+  if (gameOverTimeout) {
+    clearTimeout(gameOverTimeout);
+    gameOverTimeout = null;
+  }
 
-    const nickname = nicknameInput.value.trim();
+  music.currentTime = 0;
+  music.play().catch(() => {});
 
-    if (menu) menu.style.display = "none";
-    if (canvas) canvas.style.display = "block";
-    if (statusEl) statusEl.style.display = "block";
+  const nickname = nicknameInput.value.trim();
 
-    resizeCanvas();
-    connect();
+  menu.style.display = "none";
+  canvas.style.display = "block";
+  statusEl.style.display = "block";
 
-    if (WS.socket.readyState === WebSocket.OPEN) {
+  resizeCanvas();
+  connect();
+
+  if (WS.socket.readyState === WebSocket.OPEN) {
+    send("set_nickname", { nickname });
+  } else {
+    WS.socket.addEventListener("open", () => {
       send("set_nickname", { nickname });
-    } else {
-      WS.socket.addEventListener("open", () => {
-        send("set_nickname", { nickname });
-      });
-    }
+    });
+  }
 
-    updateCameraZoom();
-    render();
-  });
-}
+  updateCameraZoom();
+  render();
+});
