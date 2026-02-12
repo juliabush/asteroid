@@ -291,9 +291,15 @@ function drawShip(x, y, rotation) {
 }
 function drawWorldBounds() {
   ctx.save();
-  ctx.strokeStyle = "red";
-  ctx.lineWidth = 2 / CAMERA_ZOOM;
+
+  ctx.strokeStyle = "rgba(20, 40, 90, 0.6)";
+  ctx.lineWidth = 8 / CAMERA_ZOOM;
+
+  ctx.shadowColor = "rgba(20, 40, 120, 0.8)";
+  ctx.shadowBlur = 40 / CAMERA_ZOOM;
+
   ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
   ctx.restore();
 }
 
