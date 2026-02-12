@@ -69,6 +69,11 @@ shootSound.volume = 0.03;
 let CAMERA_ZOOM = 1;
 
 homeBtn.addEventListener("click", () => {
+  if (gameOverTimeout) {
+    clearTimeout(gameOverTimeout);
+    gameOverTimeout = null;
+  }
+
   modal.style.display = "none";
   canvas.style.display = "none";
   statusEl.style.display = "none";
