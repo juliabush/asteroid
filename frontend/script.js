@@ -13,6 +13,8 @@ const playBtn = document.getElementById("playBtn");
 
 const nicknameInput = document.getElementById("nickname");
 
+const homeBtn = document.getElementById("homeBtn");
+
 let gameState = null;
 let playerId = null;
 let thrusting = false;
@@ -65,6 +67,20 @@ const shootSound = new Audio("public/shoot.wav");
 shootSound.volume = 0.03;
 
 let CAMERA_ZOOM = 1;
+
+homeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+  canvas.style.display = "none";
+  statusEl.style.display = "none";
+  menu.style.display = "flex";
+
+  started = false;
+  gameState = null;
+  particles.length = 0;
+
+  music.pause();
+  music.currentTime = 0;
+});
 
 function updateCameraZoom() {
   CAMERA_ZOOM = window.innerWidth < 1000 ? 2 : 1;

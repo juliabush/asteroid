@@ -188,6 +188,23 @@ body {
   letter-spacing: 4px;
   text-align: center;
 }
+#homeBtn {
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  background: transparent;
+  border: 2px solid var(--color-accent-primary);
+  color: var(--color-accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all var(--transition-fast);
+}
+
+#homeBtn:hover {
+  background: var(--color-accent-primary);
+  color: #020617;
+  box-shadow: 0 0 20px var(--color-accent-primary-glow);
+}
 
 @media (min-width: 900px) {
   .game {
