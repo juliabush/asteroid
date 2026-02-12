@@ -194,8 +194,6 @@ function handleMessage(event) {
   }
 
   if (msg.type === "state") {
-    if (!started) return;
-
     const isGameOver = msg.phase === "game_over";
 
     if (!isGameOver && gameOverTimeout) {
