@@ -105,6 +105,11 @@ body {
   background-size: 1200px 1200px;
   animation: stars-drift 200s linear infinite;
   font-family: var(--font-main);
+  display: grid;
+  place-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-auto-rows: auto;
+  gap: 1.5rem;
 }
 
 .game::before,
@@ -259,4 +264,32 @@ body {
 
 body.modal-open {
   overflow: hidden;
+}
+.menu,
+.guest-box,
+.party-mode {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  margin: 1rem;
+}
+.guest-box {
+  grid-row: 1;
+}
+
+.menu-title {
+  justify-self: center;
+  color: white;
+  padding-bottom: 1rem;
+}
+#nickname,
+#playBtn {
+  padding: 0.5rem;
+}
+.instructions-box {
+  grid-column: 1 / -1;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 0.5rem;
 }

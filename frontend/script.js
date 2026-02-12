@@ -138,7 +138,7 @@ function send(type, payload = {}) {
 function connect() {
   if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
 
-  WS.socket = new WebSocket("ws://localhost:8000");
+  WS.socket = new WebSocket("wss://juliabush.pl/ws");
 
   WS.socket.onopen = () => {
     WS.connected = true;
@@ -214,12 +214,17 @@ function handleMessage(event) {
 window.addEventListener("keydown", (e) => {
   if (e.target === nicknameInput) return;
 
-  if (e.key === " ") shootSound.cloneNode().play();
+  if (e.key === " ") {
+    shootSound.currentTime = 0;
+    shootSound.play().catch(() => {});
+  }
 
   e.preventDefault();
   if (e.key === "ArrowUp" || e.key === "w") {
     thrusting = true;
-    if (thrustSound.paused) thrustSound.play();
+    if (thrustSound.paused) {
+      thrustSound.play().catch(() => {});
+    }
   }
   send("input", { key: e.key });
 });
@@ -393,7 +398,7 @@ playBtn.addEventListener("click", () => {
   }
 
   music.currentTime = 0;
-  music.play();
+  music.play().catch(() => {});
 
   const nickname = nicknameInput.value.trim();
 

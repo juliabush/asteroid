@@ -17,11 +17,16 @@
   <body class="game">
     <div id="menu" class="menu">
       <div class="menu__panel">
-        <h1>Asteroids</h1>
-        <input id="nickname" placeholder="Nickname" />
-        <button id="playBtn">Play</button>
+        <h1 class="menu-title">Asteroids</h1>
+        <div class="button_flex">
+          <input id="nickname" placeholder="Nickname" />
+          <button id="playBtn">Play</button>
+        </div>
       </div>
     </div>
+    <div class="guest-box"></div>
+    <div class="party-mode"></div>
+    <div class="instructions-box"></div>
 
     <canvas id="gameCanvas" class="game__canvas" style="display: none"></canvas>
 

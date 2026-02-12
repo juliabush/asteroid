@@ -4,7 +4,7 @@ import websockets
 import main
 
 from main import game_loop, create_world
-from main import PHASE_RUNNING
+from main import PHASE_RUNNING, PHASE_GAME_OVER
 from player import Player
 
 connected_clients = set()
@@ -33,7 +33,6 @@ async def handler(websocket):
     p.shot_cooldown = 0
     p.fire_held = False
     main.world["players"][websocket] = p
-
 
     player_inputs[websocket] = {
         "up": False,
@@ -64,25 +63,25 @@ async def handler(websocket):
                     player_inputs[websocket][KEY_MAP[key]] = (
                         msg_type == "input"
                     )
+
             elif msg_type == "set_nickname":
                 nickname = data.get("nickname", "").strip()
                 if websocket in main.world["players"]:
                     main.world["players"][websocket].nickname = nickname
 
             elif msg_type == "restart":
-    if main.world["phase"] != PHASE_GAME_OVER:
-        return
-    size = main.world["size"]
-    create_world(*size)
-    main.world["phase"] = PHASE_RUNNING
+                if main.world["phase"] != PHASE_GAME_OVER:
+                    return
 
+                size = main.world["size"]
+                create_world(*size)
+                main.world["phase"] = PHASE_RUNNING
 
                 for ws in connected_clients:
                     p = Player(size[0] / 2, size[1] / 2 + 250)
                     p.shot_cooldown = 0
                     p.fire_held = False
                     main.world["players"][ws] = p
-
 
     except websockets.ConnectionClosed:
         pass
