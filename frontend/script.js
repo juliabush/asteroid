@@ -204,7 +204,6 @@ function handleMessage(event) {
     gameState = msg.data;
 
     if (modal) modal.style.display = isGameOver ? "block" : "none";
-    if (helpBtn) helpBtn.style.display = isGameOver ? "none" : "block";
 
     if (isGameOver) {
       music.pause();
@@ -226,7 +225,6 @@ function handleMessage(event) {
       asteroidSkins.clear();
 
       if (modal) modal.style.display = "block";
-      if (helpBtn) helpBtn.style.display = "none";
 
       gameOverTimeout = setTimeout(() => {
         if (modal) modal.style.display = "none";
