@@ -4,62 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Asteroids</title>
+
     <link
       rel="icon"
       href="data:image/svg+xml,
-     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-      <text y='.9em' font-size='100'>🪐</text>
-     </svg>"
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+        <text y='.9em' font-size='100'>🪐</text>
+      </svg>"
     />
+
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body class="game">
-    <div id="menu" class="menu">
-      <div class="menu__panel">
-        <h1 class="menu-title">Asteroids</h1>
-        <div class="button_flex">
-          <input id="nickname" placeholder="Nickname" />
-          <button id="playBtn">Play</button>
-        </div>
+    <div class="menu">
+      <h1 class="menu-title">Asteroids</h1>
+
+      <div class="button_flex">
+        <input id="nickname" placeholder="Nickname" />
+        <button id="playBtn">Play</button>
       </div>
     </div>
-    <div class="guest-box"></div>
-    <div class="party-mode"></div>
-    <div class="instructions-box"></div>
 
-    <canvas id="gameCanvas" class="game__canvas" style="display: none"></canvas>
-
-    <p id="status" class="game__status" style="display: none">
-      Connecting to server...
-    </p>
-
-    <div class="shooting-star"></div>
-
-    <div
-      class="modal modal--game-over"
-      id="gameOverModal"
-      style="display: none"
-    >
-      <h1 class="modal__title">Game Over</h1>
-    </div>
-
-    <button id="helpBtn" class="help-btn">?</button>
-
-    <div
-      class="modal modal--instructions"
-      id="instructionsModal"
-      style="display: none"
-    >
-      <h1 class="modal__title">How to Play</h1>
+    <div class="instructions-box">
+      <h2>How to Play</h2>
 
       <div class="controls">
-        <h3>Movement (WASD or Arrow Keys)</h3>
+        <h3>Movement</h3>
 
         <div class="controls__row">
           <div class="key">W</div>
           <div class="key">↑</div>
-          <span>Move up</span>
+          <span>Move Up</span>
         </div>
 
         <div class="controls__row">
@@ -77,7 +53,7 @@
         <div class="controls__row">
           <div class="key">S</div>
           <div class="key">⬇</div>
-          <span>Move down</span>
+          <span>Move Down</span>
         </div>
 
         <h3>Combat</h3>
@@ -87,14 +63,15 @@
           <span>Shoot</span>
         </div>
       </div>
-
-      <p class="modal__text">
-        Avoid asteroids — the game ends if you hit one.<br />
-        Destroy asteroids to survive.
-      </p>
-
-      <button id="closeInstructionsBtn" class="modal__action">Close</button>
     </div>
+
+    <canvas id="gameCanvas" class="game__canvas" style="display: none"></canvas>
+
+    <p id="status" class="game__status" style="display: none">
+      Connecting to server...
+    </p>
+
+    <div class="shooting-star"></div>
 
     <script src="script.js" defer></script>
   </body>
