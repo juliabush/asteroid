@@ -85,6 +85,7 @@ homeBtn.addEventListener("click", () => {
 
   music.pause();
   music.currentTime = 0;
+  send("restart");
 });
 
 function updateCameraZoom() {
