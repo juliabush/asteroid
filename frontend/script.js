@@ -164,6 +164,9 @@ function connect() {
   WS.socket.onopen = () => {
     WS.connected = true;
     clearTimeout(WS.reconnectTimer);
+
+    const nickname = nicknameInput.value.trim();
+    send("set_nickname", { nickname });
   };
 
   WS.socket.onclose = () => {
@@ -175,7 +178,6 @@ function connect() {
     handleMessage({ data: e.data });
   };
 }
-
 function handleMessage(event) {
   const msg = JSON.parse(event.data);
 
