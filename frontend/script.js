@@ -22,6 +22,7 @@ let thrusting = false;
 let started = false;
 let gameOverTimeout = null;
 let rendering = false;
+let initialized = false; // CHANGE
 
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
@@ -82,6 +83,8 @@ homeBtn.addEventListener("click", () => {
   instructionsBox.style.display = "";
 
   started = false;
+  initialized = false;
+  playerId = null;
   gameState = null;
   particles.length = 0;
 
@@ -157,7 +160,12 @@ function send(type, payload = {}) {
 }
 
 function connect() {
-  if (WS.socket && WS.socket.readyState === WebSocket.OPEN) return;
+  if (
+    WS.socket &&
+    (WS.socket.readyState === WebSocket.OPEN ||
+      WS.socket.readyState === WebSocket.CONNECTING)
+  )
+    return;
 
   WS.socket = new WebSocket("wss://juliabush.pl/ws");
 
@@ -171,6 +179,7 @@ function connect() {
 
   WS.socket.onclose = () => {
     WS.connected = false;
+    initialized = false;
     WS.reconnectTimer = setTimeout(connect, 2000);
   };
 
@@ -184,6 +193,8 @@ function handleMessage(event) {
 
   if (msg.type === "init") {
     playerId = msg.playerId;
+    initialized = true;
+    if (!rendering && started) render();
     return;
   }
 
@@ -193,6 +204,8 @@ function handleMessage(event) {
   }
 
   if (msg.type === "state") {
+    if (!initialized) return;
+
     const isGameOver = msg.phase === "game_over";
 
     if (!isGameOver && gameOverTimeout) {
@@ -219,6 +232,8 @@ function handleMessage(event) {
       thrustSound.currentTime = 0;
 
       started = false;
+      initialized = false;
+      playerId = null;
       gameState = null;
       particles.length = 0;
       asteroidSkins.clear();
@@ -240,7 +255,7 @@ function handleMessage(event) {
 window.addEventListener("keydown", (e) => {
   if (e.target === nicknameInput) return;
 
-  if (e.key === " ") {
+  if (e.key === " " && !e.repeat) {
     shootSound.currentTime = 0;
     shootSound.play().catch(() => {});
   }
@@ -311,6 +326,7 @@ function drawShip(x, y, rotation) {
   ctx.drawImage(shipImage, -size / 2, -size / 2, size, size);
   ctx.restore();
 }
+
 function drawWorldBounds() {
   ctx.save();
 
@@ -326,7 +342,7 @@ function drawWorldBounds() {
 }
 
 function render() {
-  if (!started) {
+  if (!started || !initialized) {
     rendering = false;
     return;
   }
@@ -446,5 +462,4 @@ playBtn.addEventListener("click", () => {
   connect();
 
   updateCameraZoom();
-  if (!rendering) render();
 });
