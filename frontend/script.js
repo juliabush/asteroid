@@ -178,6 +178,7 @@ function connect() {
     handleMessage({ data: e.data });
   };
 }
+
 function handleMessage(event) {
   const msg = JSON.parse(event.data);
 
@@ -443,14 +444,6 @@ playBtn.addEventListener("click", () => {
 
   resizeCanvas();
   connect();
-
-  if (WS.socket.readyState === WebSocket.OPEN) {
-    send("set_nickname", { nickname });
-  } else {
-    WS.socket.addEventListener("open", () => {
-      send("set_nickname", { nickname });
-    });
-  }
 
   updateCameraZoom();
   if (!rendering) render();
