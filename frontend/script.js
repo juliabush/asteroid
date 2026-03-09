@@ -215,9 +215,6 @@ function handleMessage(event) {
 
     gameState = msg.data;
 
-    const me = gameState.players.find((p) => p[0] === playerId);
-    if (!me) return;
-
     const isGameOver = msg.phase === "game_over";
 
     if (!isGameOver && gameOverTimeout) {
@@ -226,14 +223,9 @@ function handleMessage(event) {
     }
 
     if (isGameOver) {
-      music.pause();
-      music.currentTime = 0;
-      music.loop = false;
-    } else {
-      music.loop = true;
-    }
+      const me = gameState.players.find((p) => p[0] === playerId);
+      if (!me || !started || !rendering) return;
 
-    if (isGameOver) {
       music.pause();
       music.currentTime = 0;
       thrustSound.pause();
@@ -241,7 +233,10 @@ function handleMessage(event) {
 
       if (modal) modal.style.display = "none";
       homeBtn.style.display = "block";
+      return;
     }
+
+    music.loop = true;
   }
 }
 
@@ -441,14 +436,11 @@ playBtn.addEventListener("click", () => {
   music.currentTime = 0;
   music.play().catch(() => {});
 
-  const nickname = nicknameInput.value.trim();
-
   menu.style.display = "none";
   instructionsBox.style.display = "none";
   canvas.style.display = "block";
 
   resizeCanvas();
   connect();
-
   updateCameraZoom();
 });
