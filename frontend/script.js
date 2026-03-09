@@ -22,7 +22,7 @@ let thrusting = false;
 let started = false;
 let gameOverTimeout = null;
 let rendering = false;
-let initialized = false; // CHANGE
+let initialized = false;
 
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
@@ -222,8 +222,6 @@ function handleMessage(event) {
 
     gameState = msg.data;
 
-    if (modal) modal.style.display = isGameOver ? "block" : "none";
-
     if (isGameOver) {
       music.pause();
       music.currentTime = 0;
@@ -232,29 +230,14 @@ function handleMessage(event) {
       music.loop = true;
     }
 
-    if (isGameOver && !gameOverTimeout) {
+    if (isGameOver) {
       music.pause();
       music.currentTime = 0;
       thrustSound.pause();
       thrustSound.currentTime = 0;
 
-      started = false;
-      initialized = false;
-      playerId = null;
-      gameState = null;
-      particles.length = 0;
-      asteroidSkins.clear();
-
-      if (modal) modal.style.display = "block";
-
-      gameOverTimeout = setTimeout(() => {
-        if (modal) modal.style.display = "none";
-        canvas.style.display = "none";
-        menu.style.display = "";
-
-        send("restart");
-        gameOverTimeout = null;
-      }, 2000);
+      if (modal) modal.style.display = "none";
+      homeBtn.style.display = "block";
     }
   }
 }
