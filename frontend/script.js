@@ -77,6 +77,12 @@ homeBtn.addEventListener("click", () => {
     gameOverTimeout = null;
   }
 
+  if (WS.socket) {
+    WS.socket.close();
+    WS.socket = null;
+    WS.connected = false;
+  }
+
   modal.style.display = "none";
   canvas.style.display = "none";
   menu.style.display = "";
@@ -90,6 +96,7 @@ homeBtn.addEventListener("click", () => {
 
   music.pause();
   music.currentTime = 0;
+
   send("restart");
 });
 
