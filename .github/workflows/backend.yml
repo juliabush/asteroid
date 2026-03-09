@@ -6,46 +6,30 @@ on:
       - main
 
 jobs:
-  deploy:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        continue-on-error: true
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        continue-on-error: true
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        continue-on-error: true
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push Docker image
-        continue-on-error: true
+      - name: Build Docker image (CI test)
         working-directory: backend
-        env:
-          IMAGE: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/backend
-          TAG: ${{ github.sha }}
         run: |
-          docker build -t $IMAGE:$TAG . || true
-          docker push $IMAGE:$TAG || true
+          docker build -t backend-test .
 
-      - name: Deploy to EC2
-        continue-on-error: true
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          script: |
-            echo "Deploying..."
-            docker stop backend || true
-            docker rm backend || true
-            docker run -d --name backend -p 80:80 nginx || true
+      - name: CI success
+        run: echo "Build completed successfully"
+
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Simulated deploy step
+        run: |
+          echo "CD pipeline triggered"
+          echo "Deployment"
