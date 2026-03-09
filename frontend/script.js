@@ -326,8 +326,13 @@ function drawWorldBounds() {
 }
 
 function render() {
-  if (!started || !initialized) {
+  if (!started) {
     rendering = false;
+    return;
+  }
+
+  if (!initialized) {
+    requestAnimationFrame(render);
     return;
   }
 
@@ -443,4 +448,6 @@ playBtn.addEventListener("click", () => {
   resizeCanvas();
   connect();
   updateCameraZoom();
+
+  if (!rendering) render();
 });
