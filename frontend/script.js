@@ -213,14 +213,17 @@ function handleMessage(event) {
   if (msg.type === "state") {
     if (!initialized) return;
 
+    gameState = msg.data;
+
+    const me = gameState.players.find((p) => p[0] === playerId);
+    if (!me) return;
+
     const isGameOver = msg.phase === "game_over";
 
     if (!isGameOver && gameOverTimeout) {
       clearTimeout(gameOverTimeout);
       gameOverTimeout = null;
     }
-
-    gameState = msg.data;
 
     if (isGameOver) {
       music.pause();
@@ -319,15 +322,11 @@ function drawShip(x, y, rotation) {
 
 function drawWorldBounds() {
   ctx.save();
-
   ctx.strokeStyle = "rgba(20, 40, 90, 0.6)";
   ctx.lineWidth = 8 / CAMERA_ZOOM;
-
   ctx.shadowColor = "rgba(20, 40, 120, 0.8)";
   ctx.shadowBlur = 40 / CAMERA_ZOOM;
-
   ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-
   ctx.restore();
 }
 
