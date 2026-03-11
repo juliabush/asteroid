@@ -330,11 +330,50 @@ function render() {
     canvas.width / (2 * dpr) - camX * scale,
     canvas.height / (2 * dpr) - camY * scale,
   );
+  updateParticles();
+  drawParticles();
 
   if (gameState) {
     for (const [, x, y, rot, nickname] of gameState.players) {
       ctx.save();
       ctx.translate(x, y);
+      ctx.rotate(((rot - 45) * Math.PI) / 180);
+
+      if (thrusting) {
+        const flicker = Math.random() * 5;
+
+        const angle = (rot * Math.PI) / 180 - Math.PI / 4 - 0.7;
+
+        const flameOffset = 12;
+
+        spawnParticles(
+          x - Math.cos(angle) * flameOffset,
+          y - Math.sin(angle) * flameOffset,
+          angle,
+        );
+
+        ctx.save();
+        ctx.rotate(Math.PI);
+        ctx.translate(0, 10);
+
+        ctx.fillStyle = "orange";
+        ctx.beginPath();
+        ctx.moveTo(0, -30);
+        ctx.lineTo(-9 - flicker, -52 - flicker);
+        ctx.lineTo(9 + flicker, -52 - flicker);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "yellow";
+        ctx.beginPath();
+        ctx.moveTo(0, -26);
+        ctx.lineTo(-4, -42 - flicker);
+        ctx.lineTo(4, -42 - flicker);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
       ctx.rotate(((rot - 45) * Math.PI) / 180);
       ctx.drawImage(shipImage, -22, -22, 45, 45);
       ctx.restore();
@@ -380,6 +419,66 @@ function render() {
   }
 
   requestAnimationFrame(render);
+}
+
+function spawnParticles(x, y, angle) {
+  for (let i = 0; i < 3; i++) {
+    particles.push({
+      x,
+      y,
+      vx: Math.cos(angle + Math.PI) * (1 + Math.random()),
+      vy: Math.sin(angle + Math.PI) * (1 + Math.random()),
+      life: 40 + Math.random() * 20,
+      size: 2 + Math.random() * 2,
+      alpha: 1,
+    });
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+
+    p.x += p.vx;
+    p.y += p.vy;
+
+    p.vx *= 0.96;
+    p.vy *= 0.96;
+
+    p.life -= 1;
+    p.alpha = p.life / 60;
+
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    const t = 1 - p.alpha;
+
+    let r;
+    let g;
+    let b;
+
+    if (t < 0.5) {
+      const k = t / 0.5;
+      r = 20 + k * 120;
+      g = 20 + k * 120;
+      b = 20 + k * 120;
+    } else {
+      const k = (t - 0.5) / 0.5;
+      r = 140 + k * 115;
+      g = 140 + k * 115;
+      b = 140 + k * 115;
+    }
+
+    ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 function resizeCanvas() {
