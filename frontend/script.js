@@ -370,6 +370,13 @@ function render() {
 
       ctx.restore();
     }
+
+    for (const [x, y] of gameState.shots) {
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+    }
   }
 
   requestAnimationFrame(render);
