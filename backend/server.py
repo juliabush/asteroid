@@ -26,7 +26,11 @@ async def handler(websocket):
 
     connected_clients.add(websocket)
 
-    main.world["phase"] = PHASE_RUNNING
+    if len(connected_clients) == 1:
+        size = main.world["size"]
+        create_world(*size)
+        main.world["phase"] = PHASE_RUNNING
+
 
     w, h = main.world["size"]
     p = Player(w / 2, h / 2)
@@ -89,6 +93,9 @@ async def handler(websocket):
         connected_clients.discard(websocket)
         main.world["players"].pop(websocket, None)
         player_inputs.pop(websocket, None)
+
+        if not connected_clients and game_task:
+            game_task.cancel()
 
 
 async def run_server():
