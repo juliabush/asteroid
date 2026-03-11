@@ -120,6 +120,19 @@ function updateCameraZoom() {
   CAMERA_ZOOM = window.innerWidth < 1000 ? 2 : 1;
 }
 
+function resetClientState() {
+  gameState = null;
+  playerId = null;
+  thrusting = false;
+  initialized = false;
+
+  asteroidSkins.clear();
+  particles.length = 0;
+
+  if (modal) modal.style.display = "none";
+  homeBtn.style.display = "none";
+}
+
 function send(type, payload = {}) {
   if (!WS.socket) {
     console.warn("send blocked: no socket", type);
@@ -375,6 +388,8 @@ window.addEventListener("resize", resizeCanvas);
 
 playBtn.addEventListener("click", () => {
   console.log("PLAY CLICK");
+
+  resetClientState();
 
   started = true;
 
