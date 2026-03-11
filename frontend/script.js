@@ -374,7 +374,6 @@ function render() {
         ctx.restore();
       }
 
-      ctx.rotate(((rot - 45) * Math.PI) / 180);
       ctx.drawImage(shipImage, -22, -22, 45, 45);
       ctx.restore();
 
