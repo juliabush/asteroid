@@ -212,7 +212,7 @@ function handleMessage(event) {
   }
 
   if (msg.type === "state") {
-    console.log("STATE UPDATE");
+    console.log("STATE UPDATE", msg);
 
     if (!initialized) {
       console.warn("state ignored: not initialized");
@@ -222,6 +222,7 @@ function handleMessage(event) {
     gameState = msg.data;
 
     const isGameOver = msg.phase === "game_over";
+    console.log("PHASE", msg.phase);
 
     if (!isGameOver && gameOverTimeout) {
       clearTimeout(gameOverTimeout);
@@ -230,10 +231,14 @@ function handleMessage(event) {
 
     if (isGameOver) {
       const me = gameState.players.find((p) => p[0] === playerId);
+      console.log("PLAYER LOOKUP", playerId, gameState.players);
 
-      console.log("GAME OVER STATE", me);
+      if (!started || !rendering) return;
 
-      if (!me || !started || !rendering) return;
+      if (!me) {
+        console.log("player not yet in state");
+        return;
+      }
 
       music.pause();
       music.currentTime = 0;
