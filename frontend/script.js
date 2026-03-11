@@ -336,7 +336,7 @@ function render() {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate((rot * Math.PI) / 180);
-      ctx.drawImage(shipImage, -22, -22, 45, 45);
+      ctx.drawImage(shipImage, -22, -60, 45, 45);
       ctx.restore();
 
       if (nickname) {
