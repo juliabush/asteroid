@@ -353,7 +353,7 @@ function render() {
         );
 
         ctx.save();
-        ctx.rotate(Math.PI + 25);
+        ctx.rotate(Math.PI - (25 * Math.PI) / 180);
         ctx.translate(0, 10);
 
         ctx.fillStyle = "orange";
