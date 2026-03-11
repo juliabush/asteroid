@@ -227,7 +227,7 @@ function handleMessage(event) {
       thrustSound.pause();
       thrustSound.currentTime = 0;
 
-      if (modal) modal.style.display = "none";
+      if (modal) modal.style.display = "block";
       homeBtn.style.display = "block";
       return;
     }
