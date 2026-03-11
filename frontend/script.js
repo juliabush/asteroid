@@ -333,7 +333,10 @@ function render() {
 
     for (const [id, x, y, r] of gameState.asteroids) {
       if (!asteroidSkins.has(id)) {
-        asteroidSkins.set(id, asteroidImages[0]);
+        asteroidSkins.set(
+          id,
+          asteroidImages[Math.floor(Math.random() * asteroidImages.length)],
+        );
       }
 
       const img = asteroidSkins.get(id);
