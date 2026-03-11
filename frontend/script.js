@@ -323,13 +323,23 @@ function render() {
     }
 
     for (const [id, x, y, r] of gameState.asteroids) {
-      if (!asteroidSkins.has(id)) {
-        asteroidSkins.set(id, asteroidImages[0]);
-      }
+  if (!asteroidSkins.has(id)) {
+    asteroidSkins.set(id, asteroidImages[0]);
+  }
 
-      const img = asteroidSkins.get(id);
-      ctx.drawImage(img, x - r, y - r, r * 2, r * 2);
-    }
+  const img = asteroidSkins.get(id);
+
+  ctx.save();
+
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+
+  ctx.drawImage(img, x - r, y - r, r * 2, r * 2);
+
+  ctx.restore();
+}
   }
 
   requestAnimationFrame(render);
