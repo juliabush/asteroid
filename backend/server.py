@@ -29,7 +29,7 @@ async def handler(websocket):
     main.world["phase"] = PHASE_RUNNING
 
     w, h = main.world["size"]
-    p = Player(w / 2, h / 2 + 250)
+    p = Player(w / 2, h / 2)
     p.shot_cooldown = 0
     p.fire_held = False
     main.world["players"][websocket] = p
@@ -78,7 +78,7 @@ async def handler(websocket):
                 main.world["phase"] = PHASE_RUNNING
 
                 for ws in connected_clients:
-                    p = Player(size[0] / 2, size[1] / 2 + 250)
+                    p = Player(size[0] / 2, size[1] / 2)
                     p.shot_cooldown = 0
                     p.fire_held = False
                     main.world["players"][ws] = p

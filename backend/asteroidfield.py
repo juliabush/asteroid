@@ -36,9 +36,15 @@ class AsteroidField(pygame.sprite.Sprite):
         self.spawn_timer = 0.0
 
     def is_safe_position(self, position):
+        spawn = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
+        if spawn.distance_to(position) < MIN_SPAWN_DISTANCE:
+            return False
+
         for player in main.world["players"].values():
             if player.position.distance_to(position) < MIN_SPAWN_DISTANCE:
                 return False
+
         return True
 
     def spawn(self, radius, position, velocity):
