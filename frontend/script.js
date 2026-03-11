@@ -314,32 +314,41 @@ function render() {
   );
 
   if (gameState) {
-    for (const [, x, y, rot] of gameState.players) {
+    for (const [, x, y, rot, nickname] of gameState.players) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate((rot * Math.PI) / 180);
       ctx.drawImage(shipImage, -22, -22, 45, 45);
       ctx.restore();
+
+      if (nickname) {
+        ctx.save();
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(nickname, x, y - 35);
+        ctx.restore();
+      }
     }
 
     for (const [id, x, y, r] of gameState.asteroids) {
-  if (!asteroidSkins.has(id)) {
-    asteroidSkins.set(id, asteroidImages[0]);
-  }
+      if (!asteroidSkins.has(id)) {
+        asteroidSkins.set(id, asteroidImages[0]);
+      }
 
-  const img = asteroidSkins.get(id);
+      const img = asteroidSkins.get(id);
 
-  ctx.save();
+      ctx.save();
 
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
 
-  ctx.drawImage(img, x - r, y - r, r * 2, r * 2);
+      ctx.drawImage(img, x - r, y - r, r * 2, r * 2);
 
-  ctx.restore();
-}
+      ctx.restore();
+    }
   }
 
   requestAnimationFrame(render);
