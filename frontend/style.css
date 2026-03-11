@@ -181,12 +181,14 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 .game-over-content {
   color: white;
   font-size: 3rem;
   letter-spacing: 4px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 #homeBtn {
   margin-top: 1.5rem;
