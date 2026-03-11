@@ -335,8 +335,8 @@ function render() {
     for (const [, x, y, rot, nickname] of gameState.players) {
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate((rot * Math.PI) / 180);
-      ctx.drawImage(shipImage, -22, -20, 25, 25);
+      ctx.rotate((rot - 75) / 180);
+      ctx.drawImage(shipImage, -22, -22, 45, 45);
       ctx.restore();
 
       if (nickname) {
